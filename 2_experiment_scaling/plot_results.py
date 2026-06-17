@@ -403,11 +403,12 @@ def plot_global_timeline(
     # [gpu_y]                 GPU lane     (LANE_H)
     # [gpu_y + LANE_H + GAP]  Data lane    (DATA_H)
     # Total per epoch (excl pad): LANE_H + GAP + DATA_H
-    LANE_H    = 3
-    DATA_H    = 6     # taller — multiple parallel disk/trans bars overlap here
-    GAP       = 4     # gap between GPU lane and Data lane
-    EPOCH_PAD = 10    # padding between epochs
-    EPOCH_H   = LANE_H + GAP + DATA_H
+    LANE_H       = 3
+    SUB_LANE_GAP = 1
+    DATA_H       = workers * LANE_H + (workers - 1) * SUB_LANE_GAP
+    GAP          = 4     # gap between GPU lane and Data lane
+    EPOCH_PAD    = 10    # padding between epochs
+    EPOCH_H      = LANE_H + GAP + DATA_H
 
     colors = {
         "disk":  "#d32f2f",
@@ -473,6 +474,24 @@ def plot_global_timeline(
             timeline = head_timeline
             has_gap  = False
 
+        # ── Assign Data Lanes (Greedy without worker IDs) ──
+        # To avoid overlapping, assign each item to the first available sub-lane
+        lanes_free_time = [0.0] * workers
+        for item in timeline:
+            assigned = -1
+            for i, free_time in enumerate(lanes_free_time):
+                if free_time <= item["disk_start"]:
+                    assigned = i
+                    lanes_free_time[i] = item["trans_start"] + item["trans_dur"]
+                    break
+            if assigned == -1:
+                # If all workers are busy (should theoretically not happen if max concurrency <= workers)
+                # Just fallback to the one that frees up earliest
+                assigned = np.argmin(lanes_free_time)
+                lanes_free_time[assigned] = item["trans_start"] + item["trans_dur"]
+            
+            item["lane_idx"] = assigned
+
         stats = compute_epoch_stats(train, train_metric, epoch)
 
         gpu_y  = y_cursor
@@ -515,39 +534,40 @@ def plot_global_timeline(
                 fontsize=9, ha="center", va="center", color="white"
             )
 
-        # ── Data lane (disk + transform, all batches, overlapping) ───
-        # Bottom sub-lane = disk read, top sub-lane = transform
-        disk_h  = DATA_H * 0.45
-        trans_h = DATA_H * 0.45
-        disk_y  = data_y
-        trans_y = data_y + DATA_H * 0.52
-
+        # ── Data lane (non-overlapping sub-lanes) ───
         for item in timeline:
+            lane_idx = item["lane_idx"]
+            wy = data_y + lane_idx * (LANE_H + SUB_LANE_GAP)
+
+            # Disk bar
             ax.broken_barh(
                 [(item["disk_start"],  item["disk_dur"])],
-                (disk_y, disk_h),
-                facecolors=colors["disk"],  alpha=0.55
+                (wy, LANE_H),
+                facecolors=colors["disk"],  alpha=0.9
             )
-            # Add batch number text to disk bar
-            ax.text(
-                item["disk_start"] + item["disk_dur"] / 2,
-                disk_y + disk_h / 2,
-                f"B{item['batch']}",
-                fontsize=8, ha="center", va="center", color="white", alpha=0.9
-            )
+            # Batch text in Disk bar
+            if item["disk_dur"] > 50: # Only draw text if the bar is wide enough
+                ax.text(
+                    item["disk_start"] + item["disk_dur"] / 2,
+                    wy + LANE_H / 2,
+                    f"B{item['batch']}",
+                    fontsize=8, ha="center", va="center", color="white", alpha=0.9
+                )
 
+            # Trans bar
             ax.broken_barh(
                 [(item["trans_start"], item["trans_dur"])],
-                (trans_y, trans_h),
-                facecolors=colors["trans"], alpha=0.55
+                (wy, LANE_H),
+                facecolors=colors["trans"], alpha=0.9
             )
-            # Add batch number text to trans bar
-            ax.text(
-                item["trans_start"] + item["trans_dur"] / 2,
-                trans_y + trans_h / 2,
-                f"B{item['batch']}",
-                fontsize=8, ha="center", va="center", color="white", alpha=0.9
-            )
+            # Batch text in Trans bar
+            if item["trans_dur"] > 50: # Only draw text if the bar is wide enough
+                ax.text(
+                    item["trans_start"] + item["trans_dur"] / 2,
+                    wy + LANE_H / 2,
+                    f"B{item['batch']}",
+                    fontsize=8, ha="center", va="center", color="white", alpha=0.9
+                )
 
         # ── Break marker ─────────────────────────────────────
         if has_gap:
@@ -725,5 +745,5 @@ def generate_report(result_dir):
 if __name__ == "__main__":
 
     generate_report(
-        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781575830_e5_bs256_w2_tb5005_vb196"
+        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781605964_e5_bs256_w4_tb5005_vb196"
     )
