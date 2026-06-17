@@ -427,6 +427,7 @@ def plot_global_timeline(
         "trans": "#d89257",
         "gpu":   "#4c6ef5",
         "wait":  "#6c757d",
+        "warmup": "#212121",
     }
 
     fig, ax = plt.subplots(
@@ -552,11 +553,13 @@ def plot_global_timeline(
         for item in timeline:
             # starvation bar (GPU waiting for data)
             if item["gpu_starvation"] > 0:
+                is_warmup = (item["batch"] == 0)
+                color = colors["warmup"] if is_warmup else colors["wait"]
                 ax.broken_barh(
                     [(item["gpu_start"] - item["gpu_starvation"],
                       item["gpu_starvation"])],
                     (gpu_y, LANE_H),
-                    facecolors=colors["wait"]
+                    facecolors=color
                 )
             # compute bar
             ax.broken_barh(
@@ -693,8 +696,9 @@ def plot_global_timeline(
     legend_handles = [
         Patch(facecolor=colors["gpu"],  label="GPU Compute"),
         Patch(facecolor=colors["wait"], label="GPU Starvation (wait)"),
-        Patch(facecolor=colors["disk"], label="Disk Read  (all workers)"),
-        Patch(facecolor=colors["trans"],label="Transform  (all workers)"),
+        Patch(facecolor=colors["warmup"], label="Pipeline Warmup (wait)"),
+        Patch(facecolor=colors["disk"], label="Disk Read"),
+        Patch(facecolor=colors["trans"],label="Transform"),
     ]
     ax.legend(handles=legend_handles, loc="upper right",
               fontsize=13, framealpha=0.8)
