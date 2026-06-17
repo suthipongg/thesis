@@ -358,18 +358,18 @@ def build_timeline_from_ts(df):
     use_precise = "disk_start_rel_ms" in df.columns and "worker_id" in df.columns
 
     if use_precise:
-        base_ts_ms = df.iloc[0]["gpu_start_rel_ms"]
+        base_ts = df.iloc[0]["gpu_start_rel_ms"]
     else:
         base_ts = df.iloc[0]["start_ts"]
 
     timeline = []
     for _, row in df.iterrows():
         if use_precise:
-            gpu_start_ms = row["gpu_start_rel_ms"] - base_ts_ms
+            gpu_start_ms = row["gpu_start_rel_ms"] - base_ts
             gpu_dur      = float(row["gpu_compute_ms"])
             starvation   = float(row["gpu_starvation_ms"]) if pd.notna(row["gpu_starvation_ms"]) else 0.0
 
-            disk_start_ms  = row["disk_start_rel_ms"] - base_ts_ms
+            disk_start_ms  = row["disk_start_rel_ms"] - base_ts
             disk_dur       = float(row["disk_ms"])
             trans_start_ms = disk_start_ms + disk_dur
             trans_dur      = float(row["trans_ms"])
@@ -450,6 +450,7 @@ def plot_global_timeline(
         # ── Build timelines from real timestamps ──
         head_timeline = build_timeline_from_ts(head)
 
+        gap_center = 0
         if has_gap:
             tail_timeline = build_timeline_from_ts(tail)   # also normalised to 0
 
@@ -482,7 +483,7 @@ def plot_global_timeline(
             all_head_ends.append(head_end_t)
             all_tail_starts.append(tail_start_plot)
             all_tail_ends.append(tail_end_plot)
-
+            gap_center = (head_end_t + tail_start_plot) / 2
         else:
             timeline = head_timeline
             has_gap  = False
@@ -611,7 +612,6 @@ def plot_global_timeline(
 
         # ── Break marker ─────────────────────────────────────
         if has_gap:
-            gap_center = (head_end_t + tail_start_plot) / 2
             y_top      = data_y + DATA_H
             y_bot      = gpu_y
 
@@ -784,13 +784,7 @@ def generate_report(result_dir):
 # ============================================================
 
 if __name__ == "__main__":
-
-    generate_report(
-        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781672285_e5_bs256_w2_tb8_vb4_dry"
-    )
-    generate_report(
-        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781672334_e5_bs256_w0_tb8_vb4_dry"
-    )
-    generate_report(
-        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781672404_e5_bs256_w4_tb8_vb4_dry"
-    )
+    root = "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/"
+    generate_report(root+"1781672285_e5_bs256_w2_tb8_vb4_dry")
+    generate_report(root+"1781672334_e5_bs256_w0_tb8_vb4_dry")
+    generate_report(root+"1781672404_e5_bs256_w4_tb8_vb4_dry")
