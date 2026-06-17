@@ -567,7 +567,6 @@ def plot_global_timeline(
             info_x = 0
 
         summary_text = (
-            f"Workers     : {workers}\n"
             f"GPU Busy    : {stats['gpu_busy']:.1f}%\n"
             f"GPU Idle    : {stats['gpu_idle']:.1f}%\n"
             f"Throughput  : {stats['throughput']:.1f} img/s\n"
@@ -711,5 +710,5 @@ def generate_report(result_dir):
 if __name__ == "__main__":
 
     generate_report(
-        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781605964_e5_bs256_w4_tb5005_vb196"
+        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781575830_e5_bs256_w2_tb5005_vb196"
     )
