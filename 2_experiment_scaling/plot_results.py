@@ -528,10 +528,25 @@ def plot_global_timeline(
                 (disk_y, disk_h),
                 facecolors=colors["disk"],  alpha=0.55
             )
+            # Add batch number text to disk bar
+            ax.text(
+                item["disk_start"] + item["disk_dur"] / 2,
+                disk_y + disk_h / 2,
+                f"B{item['batch']}",
+                fontsize=8, ha="center", va="center", color="white", alpha=0.9
+            )
+
             ax.broken_barh(
                 [(item["trans_start"], item["trans_dur"])],
                 (trans_y, trans_h),
                 facecolors=colors["trans"], alpha=0.55
+            )
+            # Add batch number text to trans bar
+            ax.text(
+                item["trans_start"] + item["trans_dur"] / 2,
+                trans_y + trans_h / 2,
+                f"B{item['batch']}",
+                fontsize=8, ha="center", va="center", color="white", alpha=0.9
             )
 
         # ── Break marker ─────────────────────────────────────
