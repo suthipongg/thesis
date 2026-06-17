@@ -477,7 +477,7 @@ def plot_global_timeline(
         # ── Assign Data Lanes (Greedy without worker IDs) ──
         # To avoid overlapping, assign each item to the first available sub-lane
         lanes_free_time = [0.0] * workers
-        for item in timeline:
+        for item in sorted(timeline, key=lambda x: x["disk_start"]):
             assigned = -1
             for i, free_time in enumerate(lanes_free_time):
                 if free_time <= item["disk_start"]:
@@ -745,5 +745,17 @@ def generate_report(result_dir):
 if __name__ == "__main__":
 
     generate_report(
+        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781575830_e5_bs256_w2_tb5005_vb196"
+    )
+    generate_report(
         "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781605964_e5_bs256_w4_tb5005_vb196"
+    )
+    generate_report(
+        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781617616_e5_bs256_w8_tb5005_vb196"
+    )
+    generate_report(
+        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781650525_e5_bs128_w2_tb10010_vb391"
+    )
+    generate_report(
+        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781668619_e5_bs256_w2_tb5005_vb196"
     )
