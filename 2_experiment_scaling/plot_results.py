@@ -350,40 +350,54 @@ def compute_epoch_stats(train, metric, epoch):
 
 def build_timeline_from_ts(df):
     """
-    Build timeline items using real start_ts timestamps.
-
-    start_ts marks when GPU compute for that batch STARTS.
-    Disk / transform times are worked backwards from that anchor:
-        data_ready = gpu_start - gpu_starvation
-        trans ends at data_ready, starts (trans_start) = data_ready - trans_ms
-        disk ends at trans_start, starts (disk_start) = trans_start - disk_ms
-
-    Timestamps are normalised so that the FIRST batch's gpu_start = 0.
-    (i.e., base_ts = start_ts of the first batch in df)
+    Build timeline items using real timestamps.
+    If precise timestamps and worker IDs are present, use them directly.
+    Otherwise, fall back to backward estimation from start_ts.
     """
     df = df.sort_values("batch_id")
-    base_ts = df.iloc[0]["start_ts"]          # normalise to first batch
+    use_precise = "disk_start_rel_ms" in df.columns and "worker_id" in df.columns
+
+    if use_precise:
+        base_ts_ms = df.iloc[0]["gpu_start_rel_ms"]
+    else:
+        base_ts = df.iloc[0]["start_ts"]
 
     timeline = []
     for _, row in df.iterrows():
-        gpu_start_ms   = (row["start_ts"] - base_ts) * 1000.0
-        gpu_dur        = float(row["gpu_compute_ms"])
-        starvation     = float(row["gpu_starvation_ms"]) if pd.notna(row["gpu_starvation_ms"]) else 0.0
+        if use_precise:
+            gpu_start_ms = row["gpu_start_rel_ms"] - base_ts_ms
+            gpu_dur      = float(row["gpu_compute_ms"])
+            starvation   = float(row["gpu_starvation_ms"]) if pd.notna(row["gpu_starvation_ms"]) else 0.0
 
-        data_ready_ms  = gpu_start_ms - starvation          # when data was ready for GPU
-        trans_start_ms = data_ready_ms - float(row["trans_ms"])
-        disk_start_ms  = trans_start_ms - float(row["disk_ms"])
+            disk_start_ms  = row["disk_start_rel_ms"] - base_ts_ms
+            disk_dur       = float(row["disk_ms"])
+            trans_start_ms = disk_start_ms + disk_dur
+            trans_dur      = float(row["trans_ms"])
+            data_ready_ms  = trans_start_ms + trans_dur
+            worker_id      = int(row["worker_id"])
+        else:
+            gpu_start_ms   = (row["start_ts"] - base_ts) * 1000.0
+            gpu_dur        = float(row["gpu_compute_ms"])
+            starvation     = float(row["gpu_starvation_ms"]) if pd.notna(row["gpu_starvation_ms"]) else 0.0
+
+            data_ready_ms  = gpu_start_ms - starvation
+            trans_start_ms = data_ready_ms - float(row["trans_ms"])
+            disk_start_ms  = trans_start_ms - float(row["disk_ms"])
+            disk_dur       = float(row["disk_ms"])
+            trans_dur      = float(row["trans_ms"])
+            worker_id      = -1
 
         timeline.append({
             "batch":          int(row["batch_id"]),
             "disk_start":     disk_start_ms,
-            "disk_dur":       float(row["disk_ms"]),
+            "disk_dur":       disk_dur,
             "trans_start":    trans_start_ms,
-            "trans_dur":      float(row["trans_ms"]),
+            "trans_dur":      trans_dur,
             "ready_time":     data_ready_ms,
             "gpu_start":      gpu_start_ms,
             "gpu_dur":        gpu_dur,
             "gpu_starvation": starvation,
+            "worker_id":      worker_id,
         })
     return timeline
 
@@ -405,10 +419,8 @@ def plot_global_timeline(
     # Total per epoch (excl pad): LANE_H + GAP + DATA_H
     LANE_H       = 3
     SUB_LANE_GAP = 1
-    DATA_H       = workers * LANE_H + (workers - 1) * SUB_LANE_GAP
     GAP          = 4     # gap between GPU lane and Data lane
     EPOCH_PAD    = 10    # padding between epochs
-    EPOCH_H      = LANE_H + GAP + DATA_H
 
     colors = {
         "disk":  "#d32f2f",
@@ -446,7 +458,7 @@ def plot_global_timeline(
                 max(i["trans_start"] + i["trans_dur"] for i in head_timeline),
             )
 
-            # Earliest point in tail (disk_start may be negative if prefetch runs before batch-0)
+            # Earliest point in tail
             tail_min_t = min(
                 min(i["disk_start"] for i in tail_timeline),
                 min(i["gpu_start"]  for i in tail_timeline),
@@ -474,23 +486,33 @@ def plot_global_timeline(
             timeline = head_timeline
             has_gap  = False
 
-        # ── Assign Data Lanes (Greedy without worker IDs) ──
-        # To avoid overlapping, assign each item to the first available sub-lane
-        lanes_free_time = [0.0] * workers
-        for item in sorted(timeline, key=lambda x: x["disk_start"]):
-            assigned = -1
-            for i, free_time in enumerate(lanes_free_time):
-                if free_time <= item["disk_start"]:
-                    assigned = i
-                    lanes_free_time[i] = item["trans_start"] + item["trans_dur"]
-                    break
-            if assigned == -1:
-                # If all workers are busy (should theoretically not happen if max concurrency <= workers)
-                # Just fallback to the one that frees up earliest
-                assigned = np.argmin(lanes_free_time)
-                lanes_free_time[assigned] = item["trans_start"] + item["trans_dur"]
-            
-            item["lane_idx"] = assigned
+        # ── Assign Data Lanes ──
+        has_precise_workers = any(item.get("worker_id", -1) >= 0 for item in timeline)
+
+        if has_precise_workers:
+            # Directly use worker_id as the lane index
+            for item in timeline:
+                item["lane_idx"] = item.get("worker_id", 0)
+            num_lanes = max(1, max(item["lane_idx"] for item in timeline) + 1)
+        else:
+            # Fall back to greedy completely dynamic lane assignment
+            lanes_free_time = []
+            for item in sorted(timeline, key=lambda x: x["disk_start"]):
+                assigned = -1
+                for i, free_time in enumerate(lanes_free_time):
+                    if free_time <= item["disk_start"]:
+                        assigned = i
+                        lanes_free_time[i] = item["trans_start"] + item["trans_dur"]
+                        break
+                if assigned == -1:
+                    assigned = len(lanes_free_time)
+                    lanes_free_time.append(item["trans_start"] + item["trans_dur"])
+                
+                item["lane_idx"] = assigned
+            num_lanes = max(1, len(lanes_free_time))
+
+        DATA_H    = num_lanes * LANE_H + (num_lanes - 1) * SUB_LANE_GAP
+        EPOCH_H   = LANE_H + GAP + DATA_H
 
         stats = compute_epoch_stats(train, train_metric, epoch)
 
@@ -508,8 +530,16 @@ def plot_global_timeline(
         # ── Lane labels ──────────────────────────────────────
         ax.text(-500, gpu_y  + LANE_H / 2, "GPU",
                 fontsize=13, fontweight="bold", va="center")
-        ax.text(-500, data_y + DATA_H / 2, "Data\n(all workers)",
-                fontsize=10, va="center", ha="right")
+        
+        if has_precise_workers:
+            for lane_idx in range(num_lanes):
+                w_y_center = data_y + lane_idx * (LANE_H + SUB_LANE_GAP) + LANE_H / 2
+                label_text = "Main Thread" if workers == 0 else f"Worker {lane_idx}"
+                ax.text(-100, w_y_center, label_text,
+                        fontsize=11, va="center", ha="right", color="#cccccc")
+        else:
+            ax.text(-500, data_y + DATA_H / 2, "Data\n(all workers)",
+                    fontsize=10, va="center", ha="right")
 
         # ── GPU lane ─────────────────────────────────────────
         for item in timeline:
@@ -745,17 +775,11 @@ def generate_report(result_dir):
 if __name__ == "__main__":
 
     generate_report(
-        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781575830_e5_bs256_w2_tb5005_vb196"
+        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781672285_e5_bs256_w2_tb8_vb4_dry"
     )
     generate_report(
-        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781605964_e5_bs256_w4_tb5005_vb196"
+        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781672334_e5_bs256_w0_tb8_vb4_dry"
     )
     generate_report(
-        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781617616_e5_bs256_w8_tb5005_vb196"
-    )
-    generate_report(
-        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781650525_e5_bs128_w2_tb10010_vb391"
-    )
-    generate_report(
-        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781668619_e5_bs256_w2_tb5005_vb196"
+        "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/1781672404_e5_bs256_w4_tb8_vb4_dry"
     )
