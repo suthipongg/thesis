@@ -528,17 +528,24 @@ def plot_global_timeline(
         )
 
         # ── Lane labels ──────────────────────────────────────
-        ax.text(-500, gpu_y  + LANE_H / 2, "GPU",
-                fontsize=13, fontweight="bold", va="center")
+        min_x = min(
+            min(item["disk_start"] for item in timeline) if timeline else 0.0,
+            min(item["gpu_start"] for item in timeline) if timeline else 0.0,
+            0.0
+        )
+        label_x = min_x - 150.0
+
+        ax.text(label_x, gpu_y  + LANE_H / 2, "GPU",
+                fontsize=13, fontweight="bold", va="center", ha="right")
         
         if has_precise_workers:
             for lane_idx in range(num_lanes):
                 w_y_center = data_y + lane_idx * (LANE_H + SUB_LANE_GAP) + LANE_H / 2
                 label_text = "Main Thread" if workers == 0 else f"Worker {lane_idx}"
-                ax.text(-100, w_y_center, label_text,
+                ax.text(label_x, w_y_center, label_text,
                         fontsize=11, va="center", ha="right", color="#cccccc")
         else:
-            ax.text(-500, data_y + DATA_H / 2, "Data\n(all workers)",
+            ax.text(label_x, data_y + DATA_H / 2, "Data\n(all workers)",
                     fontsize=10, va="center", ha="right")
 
         # ── GPU lane ─────────────────────────────────────────
