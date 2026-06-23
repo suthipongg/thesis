@@ -1,3 +1,12 @@
+---
+tags:
+  - thesis
+  - blueprint
+  - plan
+aliases:
+  - Thesis_Plan
+date: 2026-06-23
+---
 # 📝 Master Thesis Blueprint: Adaptive Data Loading Framework
 
 ## 1. ข้อมูลทั่วไปของวิทยานิพนธ์

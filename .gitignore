@@ -1,3 +1,9 @@
 .venv/
 thesis_results_real/
 venv/
+
+# Obsidian specific
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/core-plugins-migration.json
+.obsidian/app.json
