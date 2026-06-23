@@ -785,6 +785,11 @@ def generate_report(result_dir):
 
 if __name__ == "__main__":
     root = "/home/mew/Desktop/mew/study/Master degree/thesis/2_experiment_scaling/thesis_results_real/"
-    generate_report(root+"1781672285_e5_bs256_w2_tb8_vb4_dry")
-    generate_report(root+"1781672334_e5_bs256_w0_tb8_vb4_dry")
-    generate_report(root+"1781672404_e5_bs256_w4_tb8_vb4_dry")
+    # generate_report(root+"1781672285_e5_bs256_w2_tb8_vb4_dry")
+    # generate_report(root+"1781672334_e5_bs256_w0_tb8_vb4_dry")
+    # generate_report(root+"1781672404_e5_bs256_w4_tb8_vb4_dry")
+    # generate_report(root+"1781675939_e5_bs256_w2_tb5005_vb196")
+    # generate_report(root+"1781747100_e5_bs256_w8_tb5005_vb196")
+    # generate_report(root+"1781758372_e5_bs256_w4_tb5005_vb196")
+    # generate_report(root+"1781768120_e5_bs128_w2_tb10010_vb391")
+    generate_report(root+"1781850365_e5_bs128_w2_tb10010_vb391ก")

@@ -1,0 +1,2 @@
+256 batch -> ram ~ 5.1 GB
+128 batch -> ram ~ 2.6 GB
