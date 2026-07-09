@@ -15,12 +15,13 @@
 ## 2. Directory Structure & Rules
 This workspace is designed to be fully compatible with **Obsidian (Zettelkasten method)**. All markdown files must use `[[Links]]` and YAML frontmatter (`tags`, `aliases`).
 
-- **`00_Research_Log/`**
-  - **Purpose:** Store high-level analysis, empirical experiment conclusions, and analytical summaries.
-  - **Rule:** When an experiment finishes, write an analysis here and link it to `research_diary.md`.
 - **`01_Knowledge_Base/`**
   - **Purpose:** Literature reviews, paper summaries, and theoretical concepts.
-  - **Rule:** Link paper summaries back to `[[research_idea]]` (Thesis Plan).
+  - **Structure:** Divided into `01_Papers/` (for raw PDF files) and `02_Notes/` (for markdown summaries).
+  - **Rule:** Link paper summaries back to `[[01_Research_Idea]]` (Thesis Plan).
+- **`02_Research_Log/`**
+  - **Purpose:** Store high-level analysis, empirical experiment conclusions, and analytical summaries.
+  - **Rule:** When an experiment finishes, write an analysis here and link it to `02_Research_Diary.md`.
 - **`03_Experiments/`**
   - **Purpose:** ALL executable code, Jupyter Notebooks, and local experiment results.
   - **Rule:** Keep local summaries (e.g., `experiment_1_summary.md`) next to the code, and reference them in the main Research Log.
@@ -28,11 +29,12 @@ This workspace is designed to be fully compatible with **Obsidian (Zettelkasten 
   - **Purpose:** Markdown files for drafting the actual chapters of the master's thesis.
 - **Root Files:**
   - `00_Master_Dashboard.md`: The main Map of Content (MOC) for Obsidian.
-  - `research_idea.md`: The core blueprint and architecture design.
-  - `research_diary.md`: The daily logbook for tracking daily progress, bugs, and next steps.
+  - `01_Research_Idea.md`: The core blueprint and architecture design.
+  - `02_Research_Diary.md`: The daily logbook for tracking daily progress, bugs, and next steps.
 
 ## 3. Behavioral Guidelines for AI
 1. **Language:** Respond in Thai using professional, academic, yet concise language unless instructed otherwise.
 2. **Coding:** Focus on optimization, profiling, and hardware-level performance issues (I/O, Memory, Concurrency).
 3. **Obsidian Integration:** Whenever generating a markdown file, include properties (tags/aliases) and use `[[wiki-links]]` to connect it to `00_Master_Dashboard` or other relevant files.
 4. **Maintenance:** If you add a new major component or change the structural logic of this repository, update this `AI_WORKSPACE_GUIDE.md` immediately.
+5. **Citations & References:** ALWAYS include direct links (e.g., `[Link Text](file:///...)` for local files or `[Link Text](https://...)` for web URLs) and exact quotes when summarizing papers, extracting statistics, or quoting claims. This ensures the user can easily verify and read the original sources without searching.

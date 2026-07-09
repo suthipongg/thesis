@@ -28,11 +28,19 @@ date: 2026-06-23
 
 ## 3. วัตถุประสงค์และจุดขายหลัก (Core Contributions)
 
-เพื่อแก้ปัญหาคอขวดทั้ง 2 รูปแบบ งานวิจัยนี้จะพัฒนา **Python Library Framework** ที่ทำหน้าที่เป็นตัวกลาง (Middleware) สวมทับ PyTorch DataLoader เดิม โดยมีจุดเด่นคือ:
+ถึงแม้ว่าเครื่องมืออย่าง `tf.data` จะแก้ปัญหา Data Pipeline ได้ดี แต่ในปัจจุบัน PyTorch ครองส่วนแบ่งในวงการวิจัยระดับท็อป และ Hugging Face กว่า **85%** ([อ้างอิง: Leapcell 2025](https://leapcell.io/blog/tensorflow-vs-pytorch-a-comparative-analysis-for-2025)) การย้ายไปใช้ TensorFlow จึงไม่ใช่ทางเลือกสำหรับนักวิจัยส่วนใหญ่
 
-1. **Zero-Touch Automation:** ผู้ใช้ไม่ต้องมีความรู้ระดับ System เพื่อตั้งค่า `num_workers` หรือ `prefetch_factor` ระบบจะวิเคราะห์ฮาร์ดแวร์และจัดการให้เอง
-2. **Heuristic-Based Auto-Tuning:** ระบบสามารถตัดสินใจปรับเปลี่ยนกลยุทธ์การโหลดข้อมูลได้เองระหว่างรัน (On-the-fly) ตามกฎ (Rules) ที่กำหนดไว้
-3. **Robust Fallback/Rollback Mechanism:** มีระบบความปลอดภัย หาก Framework ปรับจูนค่าแล้วประสิทธิภาพแย่ลง จะทำการถอยกลับ (Rollback) ไปใช้ค่าดั้งเดิมโดยอัตโนมัติ
+นอกจากนี้ แม้ทีม PyTorch จะเคยมีความพยายามในการสร้างโปรเจกต์ `TorchData` (DataLoader2) เพื่อแก้ปัญหานี้ให้ทำงานคล้าย tf.data แต่ด้วยความซับซ้อนและปัญหาด้านสถาปัตยกรรม ทำให้โปรเจกต์ดังกล่าว **ถูกระงับการพัฒนา (Paused Active Development)** ลงในที่สุด โดยประกาศผ่าน [GitHub Issue #1196](https://github.com/meta-pytorch/data/issues/1196) ระบุว่าต้องประเมิน Technical Design และ Approach ใหม่ทั้งหมด
+
+วงการวิจัยปัจจุบันจึงมักหนีไปแก้ปัญหาคอขวดใน PyTorch ด้วยการสร้างระบบ DataLoader ใหม่ด้วยภาษา C++ (เช่น FFCV, NVIDIA DALI) เพื่อหลีกเลี่ยงข้อจำกัดของ **Python GIL (Global Interpreter Lock)** และ IPC Overhead อย่างไรก็ตาม เครื่องมือเหล่านี้สร้างภาระให้ผู้ใช้ที่ต้องเรียนรู้เครื่องมือใหม่และแปลงฟอร์แมตข้อมูล (Steep Learning Curve) 
+
+เพื่อแก้ปัญหาคอขวดทั้ง 2 รูปแบบ และอุดช่องโหว่งานวิจัย (Research Gap) ที่กล่าวมา งานวิจัยนี้จะพัฒนา **Python-native Middleware Framework** ที่ทำหน้าที่เป็นตัวกลางสวมทับ PyTorch DataLoader เดิม โดยมีจุดเด่นคือ:
+
+1. **Zero-Touch Automation & No Data Conversion:** ผู้ใช้ไม่ต้องมีความรู้ระดับ System เพื่อตั้งค่า `num_workers` หรือ `prefetch_factor` และไม่ต้องแปลงไฟล์ Dataset ระบบจะวิเคราะห์ฮาร์ดแวร์และจัดการให้เอง
+2. **Heuristic-Based Auto-Tuning (Python-Aware):** เนื่องจากข้อจำกัดของ Python Multiprocessing การปรับจูนจึงออกแบบมาเพื่อเลี่ยง Overhead โดยแบ่งเป็น:
+   - *On-the-fly Tuning:* ปรับจูนตัวแปรภายใน Shared Memory (เช่น `chunk_size` หรือ `batch_size`) ระหว่าง Batch โดยไม่ทำลายสถานะ
+   - *Epoch-boundary Tuning:* ปรับจูน `num_workers` แบบปลอดภัยเมื่อจบ Epoch เพื่อเคลียร์สถานะ Memory ก่อนสร้าง DataLoader ใหม่
+3. **Robust Fallback/Rollback Mechanism:** มีระบบความปลอดภัยประเมินผลสัมฤทธิ์ผ่าน "Goodput" หรือ Throughput หาก Framework ปรับจูนค่าแล้วประสิทธิภาพแย่ลง จะทำการถอยกลับ (Rollback) ไปใช้ค่า Baseline ดั้งเดิมโดยอัตโนมัติ
 
 ## 4. ขอบเขตของงานวิจัย (Scope & Limitations)
 
