@@ -21,15 +21,27 @@ date: 2026-07-09
    - **ปัญหา:** GPU ว่างงานรอข้อมูล
    - **ทางแก้:** Framework ที่มีระบบ `AUTOTUNE` ปรับจูนทรัพยากร (CPU, RAM) อัตโนมัติ (Dynamic Auto-tuning) โดยใช้อัลกอริทึมเช่น Hill-Climbing
    - **เบื้องหลัง:** ใช้ C++ และออกแบบเป็นกราฟ ทำให้คำนวณและปรับลด Thread ของแต่ละโหนดได้กลางอากาศโดยไม่มี Overhead
-2. **Plumber:** [[PLUMBER_DIAGNOSING_AND_REMOVING_PERFORMANCE_BOTTLENECKS_IN_MACHINE_LEARNING_DATA_PIPELINES.pdf|อ้างอิงไฟล์ PDF]]
+2. **Plumber:** [[PLUMBER_DIAGNOSING_AND_REMOVING_PERFORMANCE_BOTTLENECKS_IN_MACHINE_LEARNING_DATA_PIPELINES.pdf|อ้างอิงไฟล์ PDF]] หรือ [arXiv](https://arxiv.org/pdf/2111.04131)
    - **ปัญหา:** 62% ของงานใน Google ยังเจอคอขวดจากซอฟต์แวร์ แม้จะใช้ tf.data
-   - **ทางแก้:** เครื่องมือวิเคราะห์ที่ครอบทับ tf.data ใช้ Linear Programming วิเคราะห์หาคอขวด (CPU, Disk, Memory) และปรับจูนความขนาน/Prefetch ให้อัตโนมัติ
+   - **ทางแก้:** ใช้ Linear Programming (LP) สร้างสมการเพื่อหา "จุดคุ้มทุน (Optimal Point)" วิเคราะห์หาคอขวด (CPU, Disk, Memory) ว่าถ้าย้าย CPU 1 Core ไปเพิ่มให้ Worker จะทำให้ Throughput รวมเพิ่มขึ้นเท่าไหร่ โดยมีข้อจำกัด (Constraint) ว่าห้ามใช้ RAM เกินที่เครื่องมี
 3. **DS-Analyzer & CoorDL:** [[Analyzing_and_Mitigating_Data_Stalls_in_DNN_Training.pdf|อ้างอิงไฟล์ PDF]]
    - **ปัญหา:** การใช้ OS Page Cache ทำให้เกิด Data Stalls จากการเตะข้อมูลทิ้ง (Thrashing) และอ่านข้อมูลซ้ำซ้อน
    - **ทางแก้:** เสนอไลบรารีแบบ Drop-in replacement (เช่น ร่วมกับ NVIDIA DALI) ที่มี MinIO Cache และประสานงานการดึงข้อมูลระหว่างโหนด
 4. **Pollux:** [[Pollux_Co-adaptive_Cluster_Scheduling_for_Goodput-Optimized_Deep_Learning.pdf|อ้างอิงไฟล์ PDF]]
    - **ปัญหา:** ระบบจัดสรรทรัพยากรคลัสเตอร์ไม่ได้สนใจพารามิเตอร์ของการเทรน
    - **ทางแก้:** ระบบ Co-adaptive ที่ปรับจูนทั้ง "ทรัพยากร (GPU)" และ "พารามิเตอร์ (Batch size, Learning rate)" ไปพร้อมกัน โดยใช้มาตรวัด "Goodput" (System Throughput × Statistical Efficiency)
+5. **MinatoLoader:** [[MinatoLoader.pdf|อ้างอิงไฟล์ PDF]] หรือ [arXiv](https://arxiv.org/pdf/2509.10712)
+   - **ปัญหา:** GPU ว่างงานรอข้อมูลที่ใช้เวลาแปลง (Data preparation) ไม่เท่ากัน
+   - **ทางแก้:** ทำ Profiling ในช่วง Warmup เพื่อหาค่า P75 นำมาใช้เป็น Timeout แบ่งกลุ่มข้อมูลช้า-เร็ว (Slow/Fast data) มีการปรับจูน Worker ไดนามิก โดยตรวจเช็กการใช้งาน CPU และคิวข้อมูลเพื่อเพิ่ม/ลด CPU Worker Threads อัตโนมัติระหว่างเทรน และสลับคิวข้อมูลโดยป้อนรูปที่แปลงเสร็จเร็วกว่าให้ GPU ก่อน
+6. **DLCache:** [[DLCache.pdf|อ้างอิงไฟล์ PDF]] หรือ [ISORC23](https://www.dre.vanderbilt.edu/~gokhale/WWW/papers/ISORC23_DLCache.pdf)
+   - **ปัญหา:** RAM มีจำกัดทำให้ต้องลบข้อมูลเก่าและมีปัญหาเรื่องจำนวน Worker ที่คงที่ (OOM/GPU Starvation)
+   - **ทางแก้:** ใช้ ZeroMQ IPC ส่ง Index ไปให้ Client เพื่อดึงข้อมูลจาก NFS เข้า RAM การลบข้อมูลเก่าใช้สมการที่นำ "ต้นทุนเวลาในการดาวน์โหลดและแตกไฟล์ (Data preparation cost)" มาร่วมกับ LRFU นอกจากนี้ยังมีระบบ Auto-tune จำนวน Workers (Adaptive Multiprocess Data Loading) แบบ Real-time ตามสมการ $\omega = t_{fetch} / t_{req}$ โดยประเมินเพดาน CPU Cores จริงและข้อจำกัด Memory ก่อนสั่งเพิ่ม (Spawn) หรือลด Worker ของ PyTorch
+7. **ConcurrentDataloader:** [[ConcurrentDataloader.pdf|อ้างอิงไฟล์ PDF]] หรือ [arXiv](https://arxiv.org/pdf/2211.04908)
+   - **ปัญหา:** ข้อจำกัดของ Python GIL ในการโหลดข้อมูลแบบขนาน
+   - **ทางแก้:** เสนอ Asyncio Implementation (Concurrency ใน Thread เดียว โดยใช้ yield/await สลับเมื่อรอ I/O Network) และ Thread Pool Implementation (โหลดข้อมูลขนานกัน งาน I/O จะถูกปล่อยจาก GIL ทำให้รันหลาย Thread ได้มีประสิทธิภาพ)
+8. **Synergy:** [[Synergy.pdf|อ้างอิงไฟล์ PDF]] หรือ [arXiv](https://arxiv.org/pdf/2404.05368)
+   - **ปัญหา:** คิวข้อมูลว่างเปล่า (Starvation) ทำให้การเทรนชะงัก
+   - **ทางแก้:** ใช้ Queuing Theory (ทฤษฎีคิว) โดยนำสมการคำนวณหาอัตราเฉลี่ยของการส่งข้อมูล (Arrival Rate) เทียบกับอัตราการเทรนของ GPU (Service Rate) ถ้าระบบคำนวณแล้วพบว่าคิวข้อมูลกำลังจะว่างเปล่า มันจะสั่งเพิ่ม `num_workers` ทันที
 
 ## 2. ข้อจำกัดของ PyTorch DataLoader (The Root Cause)
 
@@ -43,7 +55,7 @@ date: 2026-07-09
 
 ทำไมจึงควรลงทุนอุดช่องโหว่ให้ PyTorch แทนที่จะย้ายไปใช้ TensorFlow (tf.data)?
 
-- **Market Dominance:** ปัจจุบัน PyTorch ครองส่วนแบ่งในวงการวิจัยระดับท็อป และโมเดลบน Hugging Face กว่า **85%** ([อ้างอิง: PyTorch vs TensorFlow 2025](https://leapcell.io/blog/tensorflow-vs-pytorch-a-comparative-analysis-for-2025)) หากสามารถสร้าง Framework ที่แก้ปัญหานี้ได้ จะสร้าง Impact ให้ผู้ใช้งานมหาศาล
+- **Market Dominance:** ปัจจุบัน PyTorch ครองส่วนแบ่งในวงการวิจัยระดับท็อป และโมเดลบน Hugging Face กว่า **85%** ([อ้างอิง: PyTorch vs TensorFlow 2026](https://blog.jetbrains.com/pycharm/2026/05/pytorch-vs-tensorflow-choosing-framework-2026/)) หากสามารถสร้าง Framework ที่แก้ปัญหานี้ได้ จะสร้าง Impact ให้ผู้ใช้งานมหาศาล
 - **ความพยายามที่ล้มเหลว (TorchData/DataLoader2):** ทีมงาน PyTorch ตระหนักถึงปัญหานี้และเคยสร้างโปรเจกต์ `TorchData` เพื่อพยายามแก้ปัญหา Data Pipeline แต่วิธีการกลับเพิ่มความซับซ้อนเกินไป จนท้ายที่สุดโปรเจกต์ถูกยุติบทบาทการพัฒนาลง โดยทีมงานได้ประกาศใน [GitHub Issue #1196](https://github.com/meta-pytorch/data/issues/1196) ว่า:
   > _"As of July 2023, we have paused active development on TorchData and have paused new releases. We have learnt a lot from building it and hearing from users, but also believe we need to re-evaluate the technical design and approach given how much the industry has changed since we began the project. During the rest of 2023 we will be re-evaluating our plans in this space."_
 

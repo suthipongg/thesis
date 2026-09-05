@@ -37,6 +37,19 @@ tags:
 
 ---
 
+### 🗓️ 2026-08-05
+
+- **สิ่งที่ทำ:** ประชุมอัปเดตความคืบหน้ากับอาจารย์ที่ปรึกษา และนำเปเปอร์ใหม่ที่ได้รับคำแนะนำ (MinatoLoader, DLCache, ConcurrentDataloader, Synergy, Plumber) มาวิเคราะห์เชิงลึกเพื่อหาแนวทางออกแบบ Dynamic Auto-Tuner
+- **สิ่งที่ค้นพบ (Insights):**
+  - **การปรับจูนแบบไดนามิกเป็นไปได้และจำเป็น:** เปเปอร์เหล่านี้ยืนยันว่าการประเมินเพื่อหาจำนวน Worker แบบ Real-time สามารถทำได้อย่างแม่นยำด้วยคณิตศาสตร์ (เช่น ทฤษฎีคิวของ Synergy, สมการ $\omega$ ของ DLCache, และ Linear Programming ของ Plumber) โดยพิจารณาจาก "อัตราการดึงข้อมูล" (Arrival Rate) เทียบกับ "ความเร็วที่ GPU เทรน" (Service Rate)
+  - **แสงสว่างสำหรับ Python-native:** ConcurrentDataloader ยืนยันว่าแม้ Python จะมีข้อจำกัดเรื่อง GIL แต่สำหรับงานโหลดข้อมูลที่เป็น I/O-bound การสลับไปใช้ Concurrency (Asyncio) หรือ Thread Pool ก็สามารถทะลวงคอขวดได้โดยไม่ต้องเปลี่ยนไปเขียน C++ แบบ Framework อื่นๆ
+  - **ตัวแปรชี้วัด (Metrics) ที่ฉลาดขึ้น:** เราไม่ควรตั้งค่า Timeout แบบสุ่ม แต่ควรทำ Profiling (P75 ของ MinatoLoader) และการสลับ/แคชข้อมูลต้องคิด "ต้นทุนเวลาในการเตรียมข้อมูล" ร่วมด้วยเสมอ
+- **อ้างอิงผลลัพธ์:** สรุปสาระสำคัญของแต่ละเปเปอร์พร้อมแนบไฟล์ PDF ต้นฉบับไว้ที่ [[/01_Knowledge_Base/02_Notes/Data_Pipeline_Bottlenecks_and_PyTorch_Limitations.md|Data_Pipeline_Bottlenecks_and_PyTorch_Limitations]]
+- **ปัญหาที่เจอ:** ปัจจุบันเรามีหลายทฤษฎีในมือ (Hill-Climbing, Linear Programming, Queuing Theory, สมการ $\omega$) ความท้าทายต่อไปคือการ "คัดเลือก" หรือ "ผสาน" สมการเหล่านี้ให้เหมาะสมกับเงื่อนไขฮาร์ดแวร์ของเรามากที่สุด (RAM จำกัด vs HPC)
+- **Next Step:** นำสมการ/อัลกอริทึมเหล่านี้มากางเทียบกันเพื่อเลือก **Core Algorithm** และเริ่มร่างโครงสร้าง Architecture ว่าจะเสียบ Middleware ตัวนี้เข้ากับ `DataLoader` ของ PyTorch โดยไม่ให้กระทบโค้ดเดิมของผู้ใช้ได้อย่างไร
+
+---
+
 ### 🗓️ [YYYY-MM-DD]
 
 - **สิ่งที่ทำ:** ...

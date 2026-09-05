@@ -28,7 +28,7 @@ date: 2026-06-23
 
 ## 3. วัตถุประสงค์และจุดขายหลัก (Core Contributions)
 
-ถึงแม้ว่าเครื่องมืออย่าง `tf.data` จะแก้ปัญหา Data Pipeline ได้ดี แต่ในปัจจุบัน PyTorch ครองส่วนแบ่งในวงการวิจัยระดับท็อป และ Hugging Face กว่า **85%** ([อ้างอิง: Leapcell 2025](https://leapcell.io/blog/tensorflow-vs-pytorch-a-comparative-analysis-for-2025)) การย้ายไปใช้ TensorFlow จึงไม่ใช่ทางเลือกสำหรับนักวิจัยส่วนใหญ่
+ถึงแม้ว่าเครื่องมืออย่าง `tf.data` จะแก้ปัญหา Data Pipeline ได้ดี แต่ในปัจจุบัน PyTorch ครองส่วนแบ่งในวงการวิจัยระดับท็อป และ Hugging Face กว่า **85%** ([อ้างอิง: JetBrains 2026](https://blog.jetbrains.com/pycharm/2026/05/pytorch-vs-tensorflow-choosing-framework-2026/)) การย้ายไปใช้ TensorFlow จึงไม่ใช่ทางเลือกสำหรับนักวิจัยส่วนใหญ่
 
 นอกจากนี้ แม้ทีม PyTorch จะเคยมีความพยายามในการสร้างโปรเจกต์ `TorchData` (DataLoader2) เพื่อแก้ปัญหานี้ให้ทำงานคล้าย tf.data แต่ด้วยความซับซ้อนและปัญหาด้านสถาปัตยกรรม ทำให้โปรเจกต์ดังกล่าว **ถูกระงับการพัฒนา (Paused Active Development)** ลงในที่สุด โดยประกาศผ่าน [GitHub Issue #1196](https://github.com/meta-pytorch/data/issues/1196) ระบุว่าต้องประเมิน Technical Design และ Approach ใหม่ทั้งหมด
 
