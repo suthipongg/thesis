@@ -30,7 +30,7 @@ date: 2026-07-09
 4. **Pollux:** [[Pollux_Co-adaptive_Cluster_Scheduling_for_Goodput-Optimized_Deep_Learning.pdf|อ้างอิงไฟล์ PDF]]
    - **ปัญหา:** ระบบจัดสรรทรัพยากรคลัสเตอร์ไม่ได้สนใจพารามิเตอร์ของการเทรน
    - **ทางแก้:** ระบบ Co-adaptive ที่ปรับจูนทั้ง "ทรัพยากร (GPU)" และ "พารามิเตอร์ (Batch size, Learning rate)" ไปพร้อมกัน โดยใช้มาตรวัด "Goodput" (System Throughput × Statistical Efficiency)
-5. **MinatoLoader:** [[MinatoLoader.pdf|อ้างอิงไฟล์ PDF]] หรือ [arXiv](https://arxiv.org/pdf/2509.10712)
+1. **MinatoLoader**: [[MinatoLoader.pdf|อ้างอิงไฟล์ PDF]] หรือ [arXiv](https://arxiv.org/pdf/2509.10712)
    - **ปัญหา:** GPU ว่างงานรอข้อมูลที่ใช้เวลาแปลง (Data preparation) ไม่เท่ากัน
    - **ทางแก้:** ทำ Profiling ในช่วง Warmup เพื่อหาค่า P75 นำมาใช้เป็น Timeout แบ่งกลุ่มข้อมูลช้า-เร็ว (Slow/Fast data) มีการปรับจูน Worker ไดนามิก โดยตรวจเช็กการใช้งาน CPU และคิวข้อมูลเพื่อเพิ่ม/ลด CPU Worker Threads อัตโนมัติระหว่างเทรน และสลับคิวข้อมูลโดยป้อนรูปที่แปลงเสร็จเร็วกว่าให้ GPU ก่อน
 6. **DLCache:** [[DLCache.pdf|อ้างอิงไฟล์ PDF]] หรือ [ISORC23](https://www.dre.vanderbilt.edu/~gokhale/WWW/papers/ISORC23_DLCache.pdf)

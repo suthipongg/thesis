@@ -15,6 +15,7 @@ tags:
 
 ### Data Loading Bottlenecks & Optimization
 - [[Data_Pipeline_Bottlenecks_and_PyTorch_Limitations]] (ปัญหาคอขวดข้อมูล, PyTorch GIL, และแนวทางแก้ปัญหาจาก 4 เปเปอร์หลัก)
+- [[MinatoLoader_Citation_and_Foundation_Analysis]] (เจาะลึก Citations, รากฐานแนวคิด, และระบบเบสไลน์ DALI / Pecan / PyTorch ของ MinatoLoader - EuroSys '26)
 
 ## 💡 ทริคสำหรับการใช้ Obsidian
 เมื่อคุณเขียนสรุปเปเปอร์ แนะนำให้ลิงก์กลับมาหาไฟล์แผนงาน [[01_Research_Idea]] ของคุณเสมอ เช่น *"เปเปอร์นี้มีแนวคิดตรงกับ Phase 3 ในแผนงานของเรา"* เพื่อให้ไอเดียมันเชื่อมโยงกันครับ
