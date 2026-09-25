@@ -95,7 +95,47 @@ aliases:
 2. **Control Mechanism:** **Proactive Memory Profiling** (ประเมิน RAM ก่อนสั่งสร้าง Worker ป้องกัน OOM) + **Safety Rollback** (ถ้าย้อนหลังแล้ว Throughput ตก ให้ Revert ทันที)
 3. **Hardware Environment:** โฟกัส **Commodity Hardware** (RAM 16-32GB, Single-node SSD)
 4. **Tuning Target:** `num_workers` + `prefetch_factor` + Sliding Memory Buffer (ไม่ปรับ Batch Size เพื่อรักษา Accuracy ของ Gradient)
-5. **Data Access Pattern:** **Pattern-Aware Adaptation** (ปรับแผนตามลักษณะข้อมูล: Fit-in-RAM, Large Weather Tensor Stream, หรือ CPU-bound)
+---
+
+### 🎯 1.2 แผนการเลือก Baselines สำหรับทดลอง (3-Tier Baseline Strategy)
+
+เพื่อพิสูจน์ประสิทธิภาพของ **Middleware ของเรา** (Proactive Memory-Aware บน Commodity Hardware) เราแบ่งการเปรียบเทียบ Baseline ออกเป็น **3 ระดับหลัก** เพื่อโชว์จุดเด่นที่แตกต่างกันในการทดลอง:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                 👑 Our Proposed Thesis Middleware                        │
+│   (Local In-Node, Proactive Memory-Aware, Rollback Safety on Commodity)  │
+└────────────────────┬────────────────────┬───────────────────────────────┘
+                     │                    │
+                     ▼                    ▼
+     ┌───────────────────────┐    ┌─────────────────────────┐
+     │ Tier 1: Standard      │    │ Tier 2: SOTA Direct     │
+     │ Framework Baselines   │    │ Auto-Tuning Baselines   │
+     ├───────────────────────┤    ├─────────────────────────┤
+     │ • PyTorch DataLoader  │    │ • MinatoLoader ('26) ⭐ │
+     │ • tf.data (AUTOTUNE)  │    │ • Plumber (LP Model)    │
+     │                       │    │ • Synergy (Queueing)    │
+     └───────────────────────┘    └─────────────────────────┘
+                     │
+                     ▼
+     ┌──────────────────────────────────────────────────────┐
+     │ Tier 3: Structural / Special Format Baselines        │
+     ├──────────────────────────────────────────────────────┤
+     │ • FFCV / SPDL (แสดงจุดขายไม่ต้องเปลี่ยน Dataset/Python) │
+     └──────────────────────────────────────────────────────┘
+```
+
+1. **Tier 1: Standard Framework Baselines (ระบบมาตรฐานในอุตสาหกรรม)**
+   - **PyTorch DataLoader (Standard):** Baseline พื้นฐานที่สุด (`num_workers` คงที่ 2, 4, 8) ชี้ให้เห็นปัญหา Data Stall หรือ Risk of OOM
+   - **`tf.data` (AUTOTUNE):** Dynamic Tuning Baseline ของ Google (Hill-Climbing Reactive Feedback) เพื่อแสดงข้อจำกัดเรื่องเสี่ยงเกิด OOM บนเครื่อง RAM จำกัด
+2. **Tier 2: SOTA Direct Auto-Tuning Baselines (งานวิจัยเป้าหมายระดับเดียวกัน)**
+   - **MinatoLoader (EuroSys '26) ⭐ [SOTA หลัก]:** ใช้ Fast-Slow Queue + P75 Profiling (เน้น HPC RAM 512GB) เปรียบเทียบกับงานของเราที่จัดการ RAM ได้ปลอดภัยกว่าบน **Commodity Hardware (16-32GB RAM)**
+   - **Plumber (2022):** Linear Programming Model Baseline
+   - **Synergy (2024):** Queueing Theory Baseline ปรับ worker บน Single GPU Node
+3. **Tier 3: Structural / Format Baselines (แสดงความสะดวกในการใช้งาน)**
+   - **FFCV / SPDL:** เปรียบเทียบเชิงสถาปัตยกรรมว่า **"งานของเราเป็น Middleware สวมทับ PyTorch เดิมได้ทันที ไม่ต้องแปลง Dataset เป็น `.ffcv` หรือต้องอัปเกรดเป็น Python 3.13 Free-threading"**
+
+*(หมายเหตุ: ระบบอื่นๆ ในตาราง Taxonomy เช่น `ConcurrentDataLoader` ใส่ไว้ในฐานะ Static Async Concurrency Baseline เพื่อความสมบูรณ์ของหมวดหมู่ Taxonomy ไม่ใช่ Baseline หลักในการทดลอง)*
 
 ---
 
