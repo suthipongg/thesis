@@ -59,3 +59,15 @@ tags:
   - **Case Study Analysis (Weather Time-Series):** แก้ปัญหาความขัดแย้งระหว่างการอัด Dataset ทั้งหมดเข้า RAM (Cold Start นาน + เสี่ยง OOM) กับการอ่านทีละไฟล์ (I/O Bottleneck) ด้วยการใช้ **Dynamic Prefetch Buffer Window + Async Multi-Worker Reading** ในระดับ Middleware
 - **อ้างอิงผลลัพธ์:** สร้างเอกสารวิเคราะห์และสรุปแบบละเอียดไว้ที่ [[/01_Knowledge_Base/02_Notes/AutoTuning_Taxonomy_and_Advisor_Feedback.md|AutoTuning_Taxonomy_and_Advisor_Feedback]]
 - **Next Step:** นำแผนภาพ Taxonomy และ Hybrid Pattern-Aware Strategy ไปนำเสนออาจารย์ในรอบถัดไป และเริ่มร่าง Proof of Concept (PoC) สำหรับ Pattern Detection Module
+
+---
+
+### 🗓️ 2026-09-25
+
+- **สิ่งที่ทำ:** จัดระเบียบลำดับขั้น (Lineage Tree & Layer Breakdown) ของเปเปอร์ทั้งหมด 25+ ระบบ จำแนกต้นกำเนิดแนวคิด (Materialized Views, Adaptive Query Processing, Event-Driven Architecture) และอัปเดตสถานะไฟล์ PDF ทั้งหมดใน Vault
+- **สิ่งที่ค้นพบ/ข้อสรุป:**
+  - **PDF Tracking:** ดาวน์โหลดและเก็บไฟล์ PDF ในเครื่องครบสมบูรณ์ทุกรายการ (รวม DL Data Loaders ล่าสุด Cedar, FFCV, SPDL, Joader และเปเปอร์ Survey ทั้ง Lotus และ Empirical Study on Low GPU Utilization)
+  - **Sub-reference Guidance:** เปเปอร์ย่อยระดับฐานข้อมูลดั้งเดิม (เช่น Agrawal, Heydon, Hellerstein) ไม่จำเป็นต้องดาวน์โหลด PDF เก็บเพิ่ม ให้ใช้วิธีอ้างอิงผ่านเปเปอร์ Layer 1 หลัก เช่น Pecan (ATC '24) และ Cachew (ATC '22)
+  - **Survey & Empirical Study Papers:** ผูกลิงก์ไฟล์ PDF ของ `lotus.pdf` และ `Empirical Study on Low GPU Utilization.pdf` ไว้เรียบร้อย สำหรับใช้อ้างอิง **Problem Motivation ในบทที่ 1 และ 2**
+- **อ้างอิงผลลัพธ์:** อัปเดตตารางสรุปเปเปอร์ใน [[/01_Knowledge_Base/02_Notes/AutoTuning_Taxonomy_and_Advisor_Feedback.md|AutoTuning_Taxonomy_and_Advisor_Feedback]] และคู่มือดาวน์โหลดใน [[/01_Knowledge_Base/01_Papers/README_PDF_Download_Checklist.md|README_PDF_Download_Checklist]]
+
