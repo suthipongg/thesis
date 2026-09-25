@@ -50,8 +50,12 @@ tags:
 
 ---
 
-### 🗓️ [YYYY-MM-DD]
+### 🗓️ 2026-09-12
 
-- **สิ่งที่ทำ:** ...
-- **ปัญหาที่เจอ:** ...
-- **Next Step:** ...
+- **สิ่งที่ทำ:** ประชุมอัปเดตและรับโจทย์ใหม่จากอาจารย์ที่ปรึกษา ( Taxonomy การทำ Auto-tune, เลือก Scope Strategy, วิเคราะห์ Case Study Weather Time-Series)
+- **สิ่งที่ค้นพบ/ข้อสรุป:**
+  - **Taxonomy:** จัดกลุ่มการ Auto-tune ออกเป็น 4 มิติ (Tuning Target, Control Mechanism, Hardware Environment, Data Access Pattern) และระบุตำแหน่งงานวิจัยของเราเป็น _Proactive Memory-Aware Auto-Tuning Middleware on Commodity Hardware_
+  - **Scope Strategy:** เลือกแนวทาง **Hybrid / Pattern-Aware Adaptive Middleware** ที่ปรับพฤติกรรมอัตโนมัติตามขนาด Dataset และ RAM Budget (In-Memory Cache vs Sliding Prefetch Buffer Stream Read vs CPU Worker Scaling)
+  - **Case Study Analysis (Weather Time-Series):** แก้ปัญหาความขัดแย้งระหว่างการอัด Dataset ทั้งหมดเข้า RAM (Cold Start นาน + เสี่ยง OOM) กับการอ่านทีละไฟล์ (I/O Bottleneck) ด้วยการใช้ **Dynamic Prefetch Buffer Window + Async Multi-Worker Reading** ในระดับ Middleware
+- **อ้างอิงผลลัพธ์:** สร้างเอกสารวิเคราะห์และสรุปแบบละเอียดไว้ที่ [[/01_Knowledge_Base/02_Notes/AutoTuning_Taxonomy_and_Advisor_Feedback.md|AutoTuning_Taxonomy_and_Advisor_Feedback]]
+- **Next Step:** นำแผนภาพ Taxonomy และ Hybrid Pattern-Aware Strategy ไปนำเสนออาจารย์ในรอบถัดไป และเริ่มร่าง Proof of Concept (PoC) สำหรับ Pattern Detection Module
