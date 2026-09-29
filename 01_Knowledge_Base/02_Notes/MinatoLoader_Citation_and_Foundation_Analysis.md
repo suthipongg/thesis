@@ -51,7 +51,7 @@ MinatoLoader ต่อสู้และพัฒนาต่อยอดมา�
    - **บทบาท:** State-of-the-art Data Loader สำหรับ TensorFlow (`tf.data`) ที่เสนอแนวคิด `AutoPlacement` (ลง Worker บน Remote CPU) และ `AutoOrder` (สลับลำดับการ Transform เช่น สลับ Inflationary vs Deflationary transformations)
    - **ข้อจำกัดที่ MinatoLoader ชี้ให้เห็น:**
      - Pecan เน้นสภาพแวดล้อมแบบ Disaggregated Cluster
-     - นโยบาย `AutoOrder` (ปรับลำดับ Transformation) ช่วยเพิ่ม GPU Utilization ได้เพียง ~3% ในเครื่อง Single-server Multi-GPU เนื่องจากไม่ได้แก้ปัญหา **Batch Creation Blocking** จาก per-sample variability
+     - เมื่อ **MinatoLoader ทดสอบ** transformation reordering heuristic ที่ได้แรงบันดาลใจจาก Pecan พบว่านโยบาย `AutoOrder` (ปรับลำดับ Transformation) ช่วยเพิ่ม GPU Utilization ได้เพียง ~3% ในเครื่อง Single-server Multi-GPU เนื่องจากไม่ได้แก้ปัญหา **Batch Creation Blocking** จาก per-sample variability
 
 ### 2.2 งานวิจัยด้าน Pipeline Optimization & Disaggregated Offloading
 
@@ -66,7 +66,7 @@ MinatoLoader ต่อสู้และพัฒนาต่อยอดมา�
 
 ```mermaid
 graph TD
-    A["<b>tf.data (VLDB '21) [35]</b><br/><i>Derek Murray, Jiri Simsa, Ana Klimovic et al.</i><br/>🌱 <b>จุดกำเนิด/รากสุด:</b> ระบบ AUTOTUNE แรกในวงการ (Hill-Climbing Algorithm)"]
+    A["<b>tf.data (VLDB '21) [35]</b><br/><i>Derek Murray, Jiri Simsa, Ana Klimovic et al.</i><br/>🌱 <b>จุดกำเนิด/รากสุด:</b> ระบบ AUTOTUNE แรกในวงการ (Gradient Descent + M/M/1/k Queueing Model)"]
     
     A --> B["<b>Cachew (USENIX ATC '22) [17]</b><br/><i>Dan Graur, Ana Klimovic et al.</i><br/>☁️ <b>สเกลสู่ Cloud:</b> Auto-scale Remote Workers & Dynamic Caching as a Service"]
     
@@ -129,10 +129,10 @@ flowchart TD
    - เมื่อ Sample ใดใช้เวลาประมวลผลเกินค่า Timeout $t_{out}$ ระบบจะบันทึก Transformation Index $i$ แล้วย้ายไปคิว `temp_queue` ทันที จากนั้น Background Worker จะนำไปประมวลผลต่อจนเสร็จแล้วใส่ `slow_queue`
    - `batch_queue` จะดึงข้อมูลจากทั้ง `fast_queue` และ `slow_queue` มาประกอบเป็น Batch โดยไม่สนว่าต้องรอตัวอย่างที่ช้า
 2. **Dynamic Timeout Budgeting (`§4.2`):**
-   - ในช่วง Warm-up (10 นาทีแรก) ระบบทำการ Profiling และคำนวณค่า **75th Percentile (P75)** ของเวลา Preprocessing ทั้งหมด เพื่อใช้เป็นค่า $t_{out}$ ดั้งเดิม
+   - ในช่วง Warm-up (**configurable**, เช่น 10 นาทีใน config ที่ทดสอบ) ระบบทำการ **Offline Profiling** และคำนวณค่า **75th Percentile (P75)** ของเวลา Preprocessing ทั้งหมด เพื่อใช้เป็นค่า $t_{out}$ ดั้งเดิม
    - หากมีการกระจายข้อมูลแบบ Skewed ระบบสามารถปรับเปลี่ยนไปใช้ **P90** หรือปรับจูนแบบ Adaptive กลางอากาศได้
 3. **Adaptive Worker Scheduler (`§4.3`):**
-   - คำนวณการปรับเพิ่ม/ลดจำนวน CPU Worker Threads ($\Delta$) ตามสถานะคิวและความต้องการ CPU Real-time:
+   - คำนวณการปรับเพิ่ม/ลดจำนวน CPU **Worker Processes** ($\Delta$) ตามสถานะคิวและความต้องการ CPU Real-time _(หมายเหตุ: PyTorch DataLoader ใช้ `torch.multiprocessing` คือ Processes ไม่ใช่ Threads):_
      $$\Delta = \alpha \cdot \left(1 - \frac{Q_{size}}{Q_{max}}\right) + \beta \cdot (C_{usage} - \theta_c)$$
    - หากคิวว่าง ($Q_{size} \ll Q_{max}$) หรือ CPU ยังมี Capacity เหลือ ($C_{usage} < \theta_c$) ระบบจะเพิ่ม Worker เพื่อให้ตาม GPU ทัน
 

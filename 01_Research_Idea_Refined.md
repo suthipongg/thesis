@@ -29,8 +29,6 @@ _(ปรับปรุงล่าสุด: 5 กันยายน 2026 - ส
 | **SPDL (2026)**          | ใช้ Free-Threading (Python 3.13) แก้อาการล็อก GIL               | ไม่มี Auto-tuning และไม่มี Memory-awareness                                                                                                         |
 | **MinatoLoader (2026)**  | ใช้ P75 Timeout แบ่งคิว Fast/Slow จัดการ Worker ไดนามิก         | **ไม่ได้ทำ Proactive Memory-Awareness:** มันไม่ได้ตรวจเช็ก RAM ล่วงหน้าเพื่อลด Worker เมื่อจะเกิด OOM แค่ทนสภาพได้ดีเฉยๆ (ทดสอบบนเครื่อง 512GB RAM) |
 
-> ⚠️ **หมายเหตุเรื่องเปเปอร์ Synergy:** ก่อนหน้านี้มีความเข้าใจผิดว่าเปเปอร์ชื่อ Synergy คือต้นตำรับการใช้ Queuing Theory ใน Data Loader แต่จากการตรวจสอบเชิงลึกพบว่า Synergy คือเปเปอร์เรื่อง CNN Quantization ทว่า **แนวคิดเรื่อง Queuing Theory (ทฤษฎีคิวที่เปรียบเทียบ Arrival Rate vs Service Rate)** นั้นเป็นแนวคิดที่มีอยู่จริงและถูกใช้ในงานอย่าง Plumber และระบบ Pipeline อื่นๆ ซึ่งเราจะหยิบ **"ทฤษฎีคิว"** นี้มาใช้โดยไม่ต้องอ้างอิงชื่อ Synergy ครับ
-
 ### 🔥 สรุปช่องว่างวิจัยที่ชัดเจน (The Missing Piece)
 
 1. ไม่มีงานไหนที่รวม **"Memory-Awareness + Dynamic Worker Tuning"** ไว้ด้วยกันแบบ Proactive (ป้องกัน OOM ก่อนเกิด)
@@ -75,7 +73,7 @@ _Proactive Memory-Aware Auto-Tuning Middleware for PyTorch Data Loaders on Commo
 **3 เสาหลักของการดำเนินงานวิจัย (Contributions):**
 
 1. **Memory-Aware Profiler:** โมดูลตรวจจับและประเมิน Memory Footprint ล่วงหน้า คำนวณขีดจำกัดก่อนสั่งสร้าง Worker เพื่อป้องกันปัญหา Out-of-Memory (OOM) อย่างเด็ดขาด (Proactive) _(แนวคิดต่อยอดและอุดช่องโหว่จากข้อจำกัดใน Section 5.5 ของเปเปอร์ MinatoLoader และแนวคิด Size Constraints จากเปเปอร์ Plumber)_
-2. **Queuing-Theory Auto-Tuner พร้อม Rollback:** นำทฤษฎีคิว (Arrival vs Service Rate) มาใช้ปรับ `num_workers` และ `prefetch_factor` พร้อมกลไก Safety Rollback ทันทีหาก Throughput ลดลง เพื่อการันตีว่าระบบจะ **ไม่มีวันทำงานช้ากว่า** PyTorch แบบดั้งเดิม _(อ้างอิงการใช้สมการ $\omega = t_{fetch}/t_{req}$ จากเปเปอร์ DLCache แต่นำมาปรับใช้บน Local SSD แทน NFS)_
+2. **Queuing-Theory Auto-Tuner พร้อม Rollback:** นำทฤษฎีคิว (Arrival vs Service Rate) มาใช้ปรับ `num_workers` และ `prefetch_factor` พร้อมกลไก Safety Rollback ทันทีหาก Throughput ลดลง เพื่อการันตีว่าระบบจะ **ไม่มีวันทำงานช้ากว่า** PyTorch แบบดั้งเดิม _(อ้างอิงการใช้สมการ $\omega = t_{fetch}/t*{req}$ จากเปเปอร์ DLCache แต่นำมาปรับใช้บน Local SSD แทน NFS)*
 3. **Commodity Hardware Focus & Python-Native:** ออกแบบมาเพื่อเป็น Drop-in replacement ให้ทำงานได้ดีเยี่ยมบนเครื่องที่มี RAM จำกัด (16-32GB) โดยพึ่งพา Python-native ให้มากที่สุด (อาจร่วมวิจัยถึงข้อดีของ Python 3.13 Free-Threading) _(อุดช่องโหว่ของเปเปอร์ MinatoLoader และ SPDL ที่มักทดสอบบน HPC เครื่องละ 512GB RAM)_
 
 ด้วยโครงร่างนี้ เราจะมี Research Gap ที่ใหม่ (ตีตก SOTA ปี 2026 อย่าง MinatoLoader ได้ในมุมของ Memory) มีกลไกที่สมเหตุสมผล และมี Impact ต่อผู้ใช้งานทั่วไปครับ
@@ -121,19 +119,7 @@ _Proactive Memory-Aware Auto-Tuning Middleware for PyTorch Data Loaders on Commo
 
 ---
 
-## 3. "Synergy อาจเพิ่ม Worker จน RAM เต็ม — รู้ได้ไงว่าเขาไม่ได้จัดการ?"
-
-**คำถามดีมากครับ ผมต้องซื่อสัตย์:**
-
-- ผมยังไม่ได้อ่าน Synergy เปเปอร์เต็มฉบับ (arXiv ID ที่ให้มาชี้ไปเรื่องอื่น)
-- **มีโอกาส** ที่ Synergy จะมีการตั้ง Cap ไว้ (เช่น ห้ามเกิน CPU cores)
-- แต่จากสรุปที่คุณเล่ามา: "_ถ้าระบบคำนวณแล้วว่าคิวข้อมูลกำลังจะว่าง มันจะสั่งเพิ่ม num_workers ทันที_" → มัน **โฟกัสที่ Throughput** (Arrival Rate vs Service Rate) ไม่ได้กล่าวถึงการตรวจ RAM
-
-> **สิ่งที่ต้องทำ:** ต้องอ่านเปเปอร์ Synergy เต็มฉบับเพื่อยืนยัน — ถ้าเขาจัดการ Memory แล้ว ก็ต้องยอมรับว่า Gap ตรงนี้อาจไม่ใช่ Gap จริงครับ
-
----
-
-## 4. "ใช้ C++ เป็น core → แล้วไง? ไม่ดีตรงไหน?"
+## 3. "ใช้ C++ เป็น core → แล้วไง? ไม่ดีตรงไหน?"
 
 **ไม่ใช่ว่า C++ ไม่ดีครับ — C++ เร็วกว่า Python แน่นอน** คำถามคือ:
 
@@ -156,7 +142,7 @@ _Proactive Memory-Aware Auto-Tuning Middleware for PyTorch Data Loaders on Commo
 
 ---
 
-## 5. "Multi-level Auto-tuning รวมแล้วดีกว่ายังไง? ถ้าแย่กว่าล่ะ?"
+## 4. "Multi-level Auto-tuning รวมแล้วดีกว่ายังไง? ถ้าแย่กว่าล่ะ?"
 
 **ตอบตรงๆ ครับ:**
 
@@ -180,7 +166,7 @@ _Proactive Memory-Aware Auto-Tuning Middleware for PyTorch Data Loaders on Commo
 
 ---
 
-## 6. "Dynamic Batch Size มันเกี่ยวกับ Accuracy ไม่ใช่หรอ?"
+## 5. "Dynamic Batch Size มันเกี่ยวกับ Accuracy ไม่ใช่หรอ?"
 
 **คุณพูดถูกครับ!** ผมควรจะอธิบายให้ชัดกว่านี้:
 
@@ -191,11 +177,11 @@ _Proactive Memory-Aware Auto-Tuning Middleware for PyTorch Data Loaders on Commo
 
 ---
 
-## 7. "ทุกตัวปล่อยให้แย่ลง? สมการมันคำนวณให้ใหม่ตลอดป่าว?"
+## 6. "ทุกตัวปล่อยให้แย่ลง? สมการมันคำนวณให้ใหม่ตลอดป่าว?"
 
 **คำถามดีครับ ต้องแยกกัน:**
 
-- **สมการที่คำนวณตลอด** (เช่น Synergy, DLCache ω): ใช่ครับ มันคำนวณใหม่ทุกรอบ → ถ้าสถานการณ์เปลี่ยน สมการก็จะให้ค่าใหม่ → **มันจะ "ปรับตัว" ได้ในรอบถัดไป**
+- **สมการที่คำนวณตลอด** (เช่น DLCache ω): ใช่ครับ มันคำนวณใหม่ทุกรอบ → ถ้าสถานการณ์เปลี่ยน สมการก็จะให้ค่าใหม่ → **มันจะ "ปรับตัว" ได้ในรอบถัดไป**
 - **แต่นั่นไม่ใช่ "Rollback"** → Rollback หมายถึง: **"จำค่าเก่าที่ดีไว้ → ถ้าค่าใหม่แย่ลง → กลับไปใช้ค่าเก่าทันที"**
 - สมการเหล่านี้ **อาจจะแก้ตัวเองได้** ในรอบถัดไป จริง → แต่ระหว่างนั้น (1-2 Epoch) มันก็จะ **เสียเวลาไปแล้ว**
 
@@ -203,7 +189,7 @@ _Proactive Memory-Aware Auto-Tuning Middleware for PyTorch Data Loaders on Commo
 
 ---
 
-## 8. "Python Free-Threading (PEP 703) คือยังไง?"
+## 7. "Python Free-Threading (PEP 703) คือยังไง?"
 
 **อธิบายง่ายๆ:**
 
@@ -234,7 +220,7 @@ Thread 2: ████████████████  ← ทำงาน�
 
 ---
 
-## 9. "เขียน C++ ไม่ดียังไง? ทำให้ Drop-in ได้เหมือนกัน"
+## 8. "เขียน C++ ไม่ดียังไง? ทำให้ Drop-in ได้เหมือนกัน"
 
 **คุณพูดถูกครับ 100%** — C++ ก็ทำ Drop-in ได้เหมือนกัน (MinatoLoader พิสูจน์แล้ว)
 
@@ -249,7 +235,7 @@ Thread 2: ████████████████  ← ทำงาน�
 
 ---
 
-## 10. "MinatoLoader เป็นปีอะไร? มีคนทำใหม่กว่ามั้ย?"
+## 9. "MinatoLoader เป็นปีอะไร? มีคนทำใหม่กว่ามั้ย?"
 
 - **MinatoLoader:** ตีพิมพ์ที่ **EuroSys 2026** (arXiv: 2509.10712 → กันยายน 2025) — **ใหม่มาก** (เพิ่งออกเดือนที่แล้ว!)
 - ทดสอบบนเครื่อง **512GB RAM**, **A100/V100 GPUs** → เครื่อง **HPC ระดับสูง** ไม่ใช่เครื่องทั่วไป
@@ -263,7 +249,7 @@ Thread 2: ████████████████  ← ทำงาน�
 
 ---
 
-## 11. "มั่นใจได้ไงว่าผลลัพธ์จะดีขึ้น ไม่ใช่รวมมั่วๆ?"
+## 10. "มั่นใจได้ไงว่าผลลัพธ์จะดีขึ้น ไม่ใช่รวมมั่วๆ?"
 
 **ตอบตรงๆ: มั่นใจ 100% ไม่ได้ จนกว่าจะทดลอง**
 
@@ -307,6 +293,5 @@ Thread 2: ████████████████  ← ทำงาน�
 >
 > ### สิ่งที่ **ต้อง** ทำก่อนตัดสินใจ
 >
-> 1. **อ่าน Synergy เปเปอร์เต็มฉบับ** → ยืนยันว่ามีหรือไม่มี Memory management
-> 2. **ถามอาจารย์:** อยากให้เป็น Python ล้วน หรือ ต่อยอด MinatoLoader (C++)?
-> 3. **ตรวจสอบ MinatoLoader Source Code** → ดูว่า Extend ยากแค่ไหน
+> 1. **ถามอาจารย์:** อยากให้เป็น Python ล้วน หรือ ต่อยอด MinatoLoader (C++)?
+> 2. **ตรวจสอบ MinatoLoader Source Code** → ดูว่า Extend ยากแค่ไหน

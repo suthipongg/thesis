@@ -17,31 +17,28 @@ date: 2026-07-09
 
 เอกสารทั้ง 4 ฉบับมุ่งเน้นแก้ปัญหา Data Stalls และคอขวดใน Machine Learning Data Pipelines:
 
-1. **tf.data (Google):** [[tf_data_A_Machin_Learning_Data_Processing_Framework.pdf|อ้างอิงไฟล์ PDF]]
+1. **tf.data (Google):** [tf_data.pdf](file:///home/mew/Desktop/mew/study/Master%20degree/thesis/01_Knowledge_Base/01_Papers/tf_data.pdf)
    - **ปัญหา:** GPU ว่างงานรอข้อมูล
-   - **ทางแก้:** Framework ที่มีระบบ `AUTOTUNE` ปรับจูนทรัพยากร (CPU, RAM) อัตโนมัติ (Dynamic Auto-tuning) โดยใช้อัลกอริทึมเช่น Hill-Climbing
+   - **ทางแก้:** Framework ที่มีระบบ `AUTOTUNE` ปรับจูนทรัพยากร (CPU, RAM) อัตโนมัติ (Dynamic Auto-tuning) โดยใช้ Gradient Descent Algorithm บน M/M/1/k Queueing Model
    - **เบื้องหลัง:** ใช้ C++ และออกแบบเป็นกราฟ ทำให้คำนวณและปรับลด Thread ของแต่ละโหนดได้กลางอากาศโดยไม่มี Overhead
-2. **Plumber:** [[PLUMBER_DIAGNOSING_AND_REMOVING_PERFORMANCE_BOTTLENECKS_IN_MACHINE_LEARNING_DATA_PIPELINES.pdf|อ้างอิงไฟล์ PDF]] หรือ [arXiv](https://arxiv.org/pdf/2111.04131)
-   - **ปัญหา:** 62% ของงานใน Google ยังเจอคอขวดจากซอฟต์แวร์ แม้จะใช้ tf.data
+2. **Plumber:** [Plumber.pdf](file:///home/mew/Desktop/mew/study/Master%20degree/thesis/01_Knowledge_Base/01_Papers/Plumber.pdf) หรือ [arXiv](https://arxiv.org/pdf/2111.04131)
+   - **ปัญหา:** จากการวิเคราะห์ jobs ใน Google: 62% ของ jobs มี input pipeline latency (Next) เกิน 1ms ต่อ training step และ 16% เกิน 100ms แสดงว่า input bottleneck ยังเป็นปัญหาใหญ่แม้จะใช้ tf.data
    - **ทางแก้:** ใช้ Linear Programming (LP) สร้างสมการเพื่อหา "จุดคุ้มทุน (Optimal Point)" วิเคราะห์หาคอขวด (CPU, Disk, Memory) ว่าถ้าย้าย CPU 1 Core ไปเพิ่มให้ Worker จะทำให้ Throughput รวมเพิ่มขึ้นเท่าไหร่ โดยมีข้อจำกัด (Constraint) ว่าห้ามใช้ RAM เกินที่เครื่องมี
-3. **DS-Analyzer & CoorDL:** [[Analyzing_and_Mitigating_Data_Stalls_in_DNN_Training.pdf|อ้างอิงไฟล์ PDF]]
+3. **DS-Analyzer & CoorDL:** [CoorDL.pdf](file:///home/mew/Desktop/mew/study/Master%20degree/thesis/01_Knowledge_Base/01_Papers/CoorDL.pdf)
    - **ปัญหา:** การใช้ OS Page Cache ทำให้เกิด Data Stalls จากการเตะข้อมูลทิ้ง (Thrashing) และอ่านข้อมูลซ้ำซ้อน
    - **ทางแก้:** เสนอไลบรารีแบบ Drop-in replacement (เช่น ร่วมกับ NVIDIA DALI) ที่มี MinIO Cache และประสานงานการดึงข้อมูลระหว่างโหนด
-4. **Pollux:** [[Pollux_Co-adaptive_Cluster_Scheduling_for_Goodput-Optimized_Deep_Learning.pdf|อ้างอิงไฟล์ PDF]]
+4. **Pollux:** [Pollux.pdf](file:///home/mew/Desktop/mew/study/Master%20degree/thesis/01_Knowledge_Base/01_Papers/Pollux.pdf)
    - **ปัญหา:** ระบบจัดสรรทรัพยากรคลัสเตอร์ไม่ได้สนใจพารามิเตอร์ของการเทรน
    - **ทางแก้:** ระบบ Co-adaptive ที่ปรับจูนทั้ง "ทรัพยากร (GPU)" และ "พารามิเตอร์ (Batch size, Learning rate)" ไปพร้อมกัน โดยใช้มาตรวัด "Goodput" (System Throughput × Statistical Efficiency)
-1. **MinatoLoader**: [[MinatoLoader.pdf|อ้างอิงไฟล์ PDF]] หรือ [arXiv](https://arxiv.org/pdf/2509.10712)
+5. **MinatoLoader**: [MinatoLoader.pdf](file:///home/mew/Desktop/mew/study/Master%20degree/thesis/01_Knowledge_Base/01_Papers/MinatoLoader.pdf) หรือ [arXiv](https://arxiv.org/pdf/2509.10712)
    - **ปัญหา:** GPU ว่างงานรอข้อมูลที่ใช้เวลาแปลง (Data preparation) ไม่เท่ากัน
-   - **ทางแก้:** ทำ Profiling ในช่วง Warmup เพื่อหาค่า P75 นำมาใช้เป็น Timeout แบ่งกลุ่มข้อมูลช้า-เร็ว (Slow/Fast data) มีการปรับจูน Worker ไดนามิก โดยตรวจเช็กการใช้งาน CPU และคิวข้อมูลเพื่อเพิ่ม/ลด CPU Worker Threads อัตโนมัติระหว่างเทรน และสลับคิวข้อมูลโดยป้อนรูปที่แปลงเสร็จเร็วกว่าให้ GPU ก่อน
-6. **DLCache:** [[DLCache.pdf|อ้างอิงไฟล์ PDF]] หรือ [ISORC23](https://www.dre.vanderbilt.edu/~gokhale/WWW/papers/ISORC23_DLCache.pdf)
+   - **ทางแก้:** ทำ Profiling ในช่วง Warmup เพื่อหาค่า P75 นำมาใช้เป็น Timeout แบ่งกลุ่มข้อมูลช้า-เร็ว (Slow/Fast data) มีการปรับจูน Worker ไดนามิก โดยตรวจเช็กการใช้งาน CPU และคิวข้อมูลเพื่อเพิ่ม/ลด CPU Worker Processes อัตโนมัติระหว่างเทรน และสลับคิวข้อมูลโดยป้อนรูปที่แปลงเสร็จเร็วกว่าให้ GPU ก่อน
+6. **DLCache:** [DLCache.pdf](file:///home/mew/Desktop/mew/study/Master%20degree/thesis/01_Knowledge_Base/01_Papers/DLCache.pdf) หรือ [ISORC23](https://www.dre.vanderbilt.edu/~gokhale/WWW/papers/ISORC23_DLCache.pdf)
    - **ปัญหา:** RAM มีจำกัดทำให้ต้องลบข้อมูลเก่าและมีปัญหาเรื่องจำนวน Worker ที่คงที่ (OOM/GPU Starvation)
    - **ทางแก้:** ใช้ ZeroMQ IPC ส่ง Index ไปให้ Client เพื่อดึงข้อมูลจาก NFS เข้า RAM การลบข้อมูลเก่าใช้สมการที่นำ "ต้นทุนเวลาในการดาวน์โหลดและแตกไฟล์ (Data preparation cost)" มาร่วมกับ LRFU นอกจากนี้ยังมีระบบ Auto-tune จำนวน Workers (Adaptive Multiprocess Data Loading) แบบ Real-time ตามสมการ $\omega = t_{fetch} / t_{req}$ โดยประเมินเพดาน CPU Cores จริงและข้อจำกัด Memory ก่อนสั่งเพิ่ม (Spawn) หรือลด Worker ของ PyTorch
-7. **ConcurrentDataloader:** [[ConcurrentDataloader.pdf|อ้างอิงไฟล์ PDF]] หรือ [arXiv](https://arxiv.org/pdf/2211.04908)
+7. **ConcurrentDataLoader** _(Technical Report):_ [ConcurrentDataLoader.pdf](file:///home/mew/Desktop/mew/study/Master%20degree/thesis/01_Knowledge_Base/01_Papers/ConcurrentDataLoader.pdf) หรือ [arXiv](https://arxiv.org/pdf/2211.04908)
    - **ปัญหา:** ข้อจำกัดของ Python GIL ในการโหลดข้อมูลแบบขนาน
    - **ทางแก้:** เสนอ Asyncio Implementation (Concurrency ใน Thread เดียว โดยใช้ yield/await สลับเมื่อรอ I/O Network) และ Thread Pool Implementation (โหลดข้อมูลขนานกัน งาน I/O จะถูกปล่อยจาก GIL ทำให้รันหลาย Thread ได้มีประสิทธิภาพ)
-8. **Synergy:** [[Synergy.pdf|อ้างอิงไฟล์ PDF]] หรือ [arXiv](https://arxiv.org/pdf/2404.05368)
-   - **ปัญหา:** คิวข้อมูลว่างเปล่า (Starvation) ทำให้การเทรนชะงัก
-   - **ทางแก้:** ใช้ Queuing Theory (ทฤษฎีคิว) โดยนำสมการคำนวณหาอัตราเฉลี่ยของการส่งข้อมูล (Arrival Rate) เทียบกับอัตราการเทรนของ GPU (Service Rate) ถ้าระบบคำนวณแล้วพบว่าคิวข้อมูลกำลังจะว่างเปล่า มันจะสั่งเพิ่ม `num_workers` ทันที
 
 ## 2. ข้อจำกัดของ PyTorch DataLoader (The Root Cause)
 
