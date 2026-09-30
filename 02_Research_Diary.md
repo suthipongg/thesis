@@ -20,7 +20,7 @@ tags:
   - เกิด GPU Starvation หนักมากถ้า Workers ต่ำ
   - ถ้า Data เล็กจะถูกดึงเข้า OS Page Cache (Dry run)
   - ถ้าใช้โมเดลช้าอย่าง ResNet18 คอขวดจะย้ายไปที่ Compute ต่อให้ใช้ W=2 ก็ตาม
-- **อ้างอิงผลลัพธ์:** เข้าไปอ่านสรุปแบบเต็มได้ที่ [[experiment_summary|Experiment_Scaling_Analysis]]
+- **อ้างอิงผลลัพธ์:** เข้าไปอ่านสรุปแบบเต็มได้ที่ [[experiment_summary]]
 - **Next Step (แผนพรุ่งนี้):** อาจจะเริ่มลองแก้ Custom Sampler เพื่อปรับพารามิเตอร์แบบ On-the-fly ตามที่เขียนไว้ใน [[/01_Research_Idea.md|Research_Idea]]
 
 ---
@@ -73,3 +73,20 @@ tags:
   - **Citation Matrix:** สแกนพบว่า `tf.data`, `Cachew`, และ `MinatoLoader` เป็นศูนย์กลางการถูกอ้างอิงของเปเปอร์ฝั่ง Auto-Tuning ในช่วงปี 2022-2026
   - **Baselines:** MinatoLoader (EuroSys '26) คือ SOTA Baseline หลักที่เราต้องเปรียบเทียบในแง่ RAM-Awareness บน Commodity Hardware
 - **อ้างอิงผลลัพธ์:** อัปเดตตารางสรุปเปเปอร์ใน [[/01_Knowledge_Base/02_Notes/AutoTuning_Taxonomy_and_Advisor_Feedback.md|AutoTuning_Taxonomy_and_Advisor_Feedback]]
+
+---
+
+### 🗓️ 2026-09-26
+
+- **สิ่งที่ทำ:** ประชุมอัปเดตกับอาจารย์ที่ปรึกษา (Advisor Meeting)
+- **สิ่งที่ค้นพบ/ข้อสรุป (Key Takeaways):**
+  - **RAM-Aware + Rollback = Minor Contribution:** อาจารย์ชี้ว่าสิ่งนี้เป็นแค่ Minor Contribution ต้องหาจุดแข็งหลักที่ใหญ่กว่า
+  - **โอกาสหลัก 1 — Dynamic `prefetch_factor` Tuning:** MinatoLoader ไม่ได้ Auto-Tune `prefetch_factor` เลย มีแค่ `num_workers` — การ Joint Tune ทั้งคู่พร้อมกันคือ Research Gap ที่ชัดเจน
+  - **โอกาสหลัก 2 — Unified Memory Architecture:** MinatoLoader ทดสอบบน HPC (VRAM แยก) ยังไม่เคยทดสอบบน Apple Silicon (Unified RAM/VRAM) ซึ่ง OOM Risk สูงกว่ามาก — เราสามารถเป็น First ได้
+  - **Hardware เป้าหมาย:** Mac Mini M1 (16GB Unified Memory) เป็นตัวเลือกที่แนะนำเพราะ Unique positioning และ MinatoLoader ยัง Virgin อยู่บนสถาปัตยกรรมนี้
+- **Research Positioning หลังประชุม:** เพิ่มจาก "Commodity HW (CUDA)" → "Commodity HW — รองรับทั้ง CUDA Discrete VRAM **และ** Unified Memory (Apple MPS)"
+- **Open Questions:**
+  - [ ] MPS Backend รองรับ DataLoader multi-worker ได้ Full หรือยัง?
+  - [ ] จะ Implement Multi-Node Awareness หรือเป็นแค่ Future Work?
+  - [ ] มี Mac Mini M1 ให้ทดสอบได้จริงหรือเปล่า?
+- **Next Step:** ทดสอบ PyTorch MPS + DataLoader multi-worker บน Apple Silicon และเริ่ม PoC Architecture สำหรับ Joint Tuner (num_workers + prefetch_factor)

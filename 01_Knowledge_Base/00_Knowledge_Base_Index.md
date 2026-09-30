@@ -9,9 +9,7 @@ tags:
 โฟลเดอร์ `01_Knowledge_Base` ถูกแบ่งออกเป็น 2 ส่วนหลักคือ:
 
 - 📁 **`01_Papers/`** สำหรับเก็บไฟล์ PDF ต้นฉบับ
-- 📁 **`02_Notes/`** สำหรับเก็บไฟล์ Markdown สรุปเปเปอร์และทฤษฎี
-
-คุณสามารถสร้างไฟล์ย่อยๆ ใน `02_Notes/` แล้วนำมาอัปเดตลิสต์รวมกันในสารบัญนี้ได้
+- 📁 **`02_Notes/`** สำหรับเก็บไฟล์ Markdown สรุปเปเปอร์, ทฤษฎี, แผนการทำงาน, และสคริปต์ที่เกี่ยวข้องกับงานวิจัย
 
 ## 🔖 สารบัญ (Index)
 
@@ -20,6 +18,11 @@ tags:
 - [[Data_Pipeline_Bottlenecks_and_PyTorch_Limitations]] (ปัญหาคอขวดข้อมูล, PyTorch GIL, และแนวทางแก้ปัญหาจาก 4 เปเปอร์หลัก)
 - [[MinatoLoader_Citation_and_Foundation_Analysis]] (เจาะลึก Citations, รากฐานแนวคิด, และระบบเบสไลน์ DALI / Pecan / PyTorch ของ MinatoLoader - EuroSys '26)
 - [[AutoTuning_Taxonomy_and_Advisor_Feedback]] (Taxonomy การทำ Auto-tune 5 มิติ, การจำแนกตำแหน่งงานวิจัย, Scope Strategy แบบ Hybrid Pattern-Aware, และการวิเคราะห์ Case Study Weather Time-Series)
+
+### Research Planning & Presentation
+
+- [[Thesis_Roadmap]] (แผนการดำเนินงานวิจัย 4 Phase: Baseline → Core Dev → Evaluation → Writing)
+- [[Presentation_Script]] (สคริปต์การพรีเซนต์เสนอหัวข้อวิทยานิพนธ์กับอาจารย์ที่ปรึกษา)
 
 ## 💡 ทริคสำหรับการใช้ Obsidian
 

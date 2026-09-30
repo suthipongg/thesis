@@ -218,6 +218,6 @@ _(หมายเหตุ: ระบบอื่นๆ ในตาราง Ta
 
 ## 📌 อ้างอิงไฟล์ที่เกี่ยวข้อง (Related Links)
 
-- [[01_Research_Idea_Refined]] — โครงร่างแผนวิทยานิพนธ์ฉบับปรับปรุง
+- [[01_Research_Idea]] — โครงร่างแผนวิทยานิพนธ์ฉบับปรับปรุง
 - [[/01_Knowledge_Base/02_Notes/MinatoLoader_Citation_and_Foundation_Analysis.md|MinatoLoader Analysis]] — การวิเคราะห์เปเปอร์ SOTA MinatoLoader
 - [[/01_Knowledge_Base/02_Notes/Data_Pipeline_Bottlenecks_and_PyTorch_Limitations.md|Data Pipeline Bottlenecks]] — สรุปข้อจำกัด PyTorch DataLoader และ SOTA Papers
