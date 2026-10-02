@@ -79,7 +79,7 @@ _(ปรับปรุงล่าสุด - กันยายน 2026)_
 
 ---
 
-### 📊 เปเปอประเภท Survey & Empirical Bottleneck Studies (ดาวน์โหลดในเครื่องครบแล้ว)
+### 📊 เปเปอประเภท Survey & Empirical Bottleneck Studies
 
 - 📄 **[Empirical_Study_Low_GPU_Utilization.pdf](file:///home/mew/Desktop/mew/study/Master%20degree/thesis/01_Knowledge_Base/01_Papers/Empirical_Study_Low_GPU_Utilization.pdf)** _(Cited in MinatoLoader)_  
   • **โฟกัส:** วิเคราะห์หาสาเหตุที่ GPU ว่างงาน (GPU Idle Stalls) $\rightarrow$ สรุปว่าคอขวดอันดับ 1 เกิดจาก Data Preprocessing & Ingestion _(ใช้อ้างอิง Problem Statement ในบทที่ 1)_
@@ -187,7 +187,7 @@ _(หมายเหตุ: ระบบอื่นๆ ในตาราง Ta
 
 ```
                           ┌─────────────────────────────────────────┐
-                          │ Proactive Memory-Aware Auto-Tuner        │
+                          │ Proactive Memory-Aware Auto-Tuner       │
                           └───────────────────┬─────────────────────┘
                                               │
                ┌──────────────────────────────┴──────────────────────────────┐
@@ -202,7 +202,7 @@ _(หมายเหตุ: ระบบอื่นๆ ในตาราง Ta
                     │      Auto-Configured Sliding Buffer Pipeline      │
                     │                                                   │
                     │  1. Prefetch Window Size = 10 GB (Safe inside RAM)│
-                    │  2. Worker Processes = 6 (Async I/O Overlapping)   │
+                    │  2. Worker Processes = 6 (Async I/O Overlapping)  │
                     │  3. Chunking = Read contiguous spatial slices     │
                     └─────────────────────────┬─────────────────────────┘
                                               ▼
