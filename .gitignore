@@ -1,6 +1,8 @@
 .venv/
+.venv_minato/
 thesis_results_real/
 venv/
+00_datasets/*/
 
 # Obsidian specific
 .obsidian/workspace.json

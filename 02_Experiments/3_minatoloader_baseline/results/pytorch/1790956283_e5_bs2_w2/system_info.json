@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-10-02T22:51:23",
+  "python_version": "3.12.3",
+  "torch_version": "2.5.1+cu121",
+  "cuda_version": "12.1",
+  "gpu_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+  "cpu_model": "x86_64",
+  "cpu_cores": 12,
+  "ram_total_gb": 16.46,
+  "vram_total_gb": 6.09,
+  "loader": "pytorch",
+  "num_workers": 2,
+  "batch_size": 2,
+  "epochs": 5,
+  "amp": true,
+  "dry_run": false,
+  "data_dir": "/home/mew/Desktop/mew/study/Master degree/thesis/00_datasets/kits19_preproc"
+}
