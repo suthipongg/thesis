@@ -1,0 +1,86 @@
+Bootstrap: docker
+From: pytorch/pytorch:1.7.0-cuda11.0-cudnn8-devel
+
+%files
+    . /workspace/speech_recognition
+
+%post
+    # Remove any existing sources list to avoid conflicts
+    rm -rf /etc/apt/sources.list.d/*  
+
+    # Install dependencies
+    apt-get update && \
+        apt-get install -y libsndfile1 sox git cmake jq && \
+        apt-get install -y --no-install-recommends numactl && \
+        apt-get install -y vim wget unzip && \
+        rm -rf /var/lib/apt/lists/*
+
+    # Upgrade pip before installing Python dependencies
+    python3 -m pip install --upgrade pip
+
+    # Build warp-transducer
+    mkdir -p deps
+    cd deps
+    git clone https://github.com/HawkAaron/warp-transducer
+    cd warp-transducer
+    git checkout f546575109111c455354861a0567c8aa794208a2
+
+    # Modify CMakeLists.txt for CUDA compute capability
+    sed -i 's/set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_30,code=sm_30 -O2")/#set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_30,code=sm_30 -O2")/g' CMakeLists.txt
+    sed -i 's/set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_75,code=sm_75")/set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_80,code=sm_80")/g' CMakeLists.txt
+
+    mkdir build
+    cd build
+    cmake ..
+    make -j$(nproc)
+
+    # Set environment variables for CUDA and Warp-RNNT
+    export CUDA_HOME="/usr/local/cuda"
+    export WARP_RNNT_PATH=$(pwd)
+    export CUDA_TOOLKIT_ROOT_DIR=$CUDA_HOME
+    export LD_LIBRARY_PATH="$CUDA_HOME/extras/CUPTI/lib64:$LD_LIBRARY_PATH"
+    export LIBRARY_PATH=$CUDA_HOME/lib64:$LIBRARY_PATH
+    export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+    export CFLAGS="-I$CUDA_HOME/include $CFLAGS"
+
+    cd ../pytorch_binding
+    python3 setup.py install
+    rm -rf ../tests test ../tensorflow_binding
+    cd ../../..
+
+    # Install Python dependencies
+    pip install "protobuf<3.21"
+    pip install --no-cache-dir --extra-index-url https://developer.download.nvidia.com/compute/redist nvidia-dali-cuda110==0.28.0
+    pip install --force-reinstall numpy==1.22.0
+    pip install --no-cache-dir --force-reinstall \
+        --global-option="--cpp_ext" --global-option="--cuda_ext" \
+        https://github.com/NVIDIA/apex/archive/8a1ed9e8d35dfad26fb973996319965e4224dcdd.zip
+
+    pip install tensorboard==2.3.0 \
+                unidecode==1.1.1 \
+                inflect==4.1.0 \
+                soundfile==0.10.3.post1 \
+                librosa==0.8.0 \
+                sox==1.4.1 \
+                sentencepiece==0.1.94 \
+                pandas==1.1.5 \
+                PyWavelets
+
+    # Install NVIDIA dllogger
+    pip install https://github.com/NVIDIA/dllogger/archive/26a0f8f1958de2c0c460925ff6102a4d2486d6cc.zip
+   
+
+    # Install MLCommons logging
+    pip install https://github.com/mlcommons/logging/archive/d08740cadb4188a5ebeb84ad6c68f98c1e129805.zip
+   
+
+    # Install CuPy for CUDA 11.0
+    pip install cupy-cuda110
+
+%environment
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+    export PATH=/workspace/speech_recognition:$PATH
+
+%runscript
+    exec /bin/bash "$@"

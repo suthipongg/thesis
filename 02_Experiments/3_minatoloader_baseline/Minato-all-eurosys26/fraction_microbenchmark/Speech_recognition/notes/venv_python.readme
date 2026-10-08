@@ -1,0 +1,16 @@
+https://pypi.org/project/google-cloud-vision/
+
+Getting the error ModuleNotFoundError: No module named 'google.cloud'
+
+* pip3 install google.cloud (google-cloud-*) does not solve the problem ==> need to use the python venv
+
+* I was installing the venv in my user env and after tried "sudo python3 ..." but the problem with this is that $USER and root are 2 differents users and env ==> so you need to set the venv in root:	
+
+```
+sudo -s
+pip3 install virtualenv
+virtualenv testenv
+source testenv/bin/activate
+testenv/bin/pip install google-cloud-vision google-cloud-storage
+```
+

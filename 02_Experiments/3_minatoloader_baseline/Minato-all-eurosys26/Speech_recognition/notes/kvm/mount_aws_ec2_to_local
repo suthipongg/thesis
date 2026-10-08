@@ -1,0 +1,9 @@
+# in your ec2 instance
+add your local public key to authorized_keys
+
+# in your local computer
+sudo apt install sshfs
+sshfs ec2-user@ec2-address:/absolute/path/remote /absolute/path/to/local -o IdentityFile=/home/user/.ssh/private_key_file
+
+# Example:
+# sshfs /home/stellab/test/ ubuntu@ec2-3-136-85-154.us-east-2.compute.amazonaws.com:/home/ubuntu -o IdentityFile=/home/stellab/.ssh/id_rsa

@@ -1,0 +1,58 @@
+DLLL {"timestamp": "1743997797.992629", "elapsedtime": "1.2e-05", "datetime": "2025-04-07 04:49:57.992629", "type": "METADATA", "metric": "train_lrate", "metadata": {"name": "lrate", "format": ":>3.2e"}}
+DLLL {"timestamp": "1743997797.992721", "elapsedtime": "0.000104", "datetime": "2025-04-07 04:49:57.992721", "type": "METADATA", "metric": "train_loss", "metadata": {"name": "loss", "format": ":>7.2f"}}
+DLLL {"timestamp": "1743997797.992736", "elapsedtime": "0.000119", "datetime": "2025-04-07 04:49:57.992736", "type": "METADATA", "metric": "train_wer", "metadata": {"name": "wer", "format": ":>6.2f"}}
+DLLL {"timestamp": "1743997797.992748", "elapsedtime": "0.000131", "datetime": "2025-04-07 04:49:57.992748", "type": "METADATA", "metric": "train_pplx", "metadata": {"name": "pplx", "format": ":>6.2f"}}
+DLLL {"timestamp": "1743997797.992976", "elapsedtime": "0.000359", "datetime": "2025-04-07 04:49:57.992976", "type": "METADATA", "metric": "train_throughput", "metadata": {"name": "utts/s", "format": ":>5.0f"}}
+DLLL {"timestamp": "1743997797.992991", "elapsedtime": "0.000374", "datetime": "2025-04-07 04:49:57.992991", "type": "METADATA", "metric": "train_took", "metadata": {"name": "took", "unit": "s", "format": ":>5.2f"}}
+DLLL {"timestamp": "1743997797.993002", "elapsedtime": "0.000385", "datetime": "2025-04-07 04:49:57.993002", "type": "METADATA", "metric": "train_avg_loss", "metadata": {"name": "avg train loss", "format": ":>7.2f"}}
+DLLL {"timestamp": "1743997797.993013", "elapsedtime": "0.000396", "datetime": "2025-04-07 04:49:57.993013", "type": "METADATA", "metric": "train_avg_wer", "metadata": {"name": "avg train wer", "format": ":>6.2f"}}
+DLLL {"timestamp": "1743997797.993024", "elapsedtime": "0.000407", "datetime": "2025-04-07 04:49:57.993024", "type": "METADATA", "metric": "train_avg_pplx", "metadata": {"name": "avg train pplx", "format": ":>6.2f"}}
+DLLL {"timestamp": "1743997797.993034", "elapsedtime": "0.000417", "datetime": "2025-04-07 04:49:57.993034", "type": "METADATA", "metric": "train_avg_throughput", "metadata": {"name": "avg train utts/s", "format": ":>5.0f"}}
+DLLL {"timestamp": "1743997797.993044", "elapsedtime": "0.000427", "datetime": "2025-04-07 04:49:57.993044", "type": "METADATA", "metric": "train_avg_took", "metadata": {"name": "took", "unit": "s", "format": ":>5.2f"}}
+DLLL {"timestamp": "1743997797.993055", "elapsedtime": "0.000438", "datetime": "2025-04-07 04:49:57.993055", "type": "METADATA", "metric": "dev_ema_loss", "metadata": {"name": "  dev ema loss", "format": ":>7.2f"}}
+DLLL {"timestamp": "1743997797.993065", "elapsedtime": "0.000448", "datetime": "2025-04-07 04:49:57.993065", "type": "METADATA", "metric": "dev_ema_wer", "metadata": {"name": "  dev ema wer", "format": ":>6.2f"}}
+DLLL {"timestamp": "1743997797.993075", "elapsedtime": "0.000458", "datetime": "2025-04-07 04:49:57.993075", "type": "METADATA", "metric": "dev_ema_pplx", "metadata": {"name": "  dev ema pplx", "format": ":>6.2f"}}
+DLLL {"timestamp": "1743997797.993085", "elapsedtime": "0.000468", "datetime": "2025-04-07 04:49:57.993085", "type": "METADATA", "metric": "dev_ema_throughput", "metadata": {"name": "  dev ema utts/s", "format": ":>5.0f"}}
+DLLL {"timestamp": "1743997797.993095", "elapsedtime": "0.000478", "datetime": "2025-04-07 04:49:57.993095", "type": "METADATA", "metric": "dev_ema_took", "metadata": {"name": "took", "unit": "s", "format": ":>5.2f"}}
+DLLL {"timestamp": "1743997798.000535", "datetime": "2025-04-07 04:49:58.000535", "elapsedtime": "0.007918", "type": "LOG", "step": "PARAMETER", "data": {"epochs": 10}}
+DLLL {"timestamp": "1743997798.000659", "datetime": "2025-04-07 04:49:58.000659", "elapsedtime": "0.008042", "type": "LOG", "step": "PARAMETER", "data": {"warmup_epochs": 6}}
+DLLL {"timestamp": "1743997798.000704", "datetime": "2025-04-07 04:49:58.000704", "elapsedtime": "0.008087", "type": "LOG", "step": "PARAMETER", "data": {"hold_epochs": 40}}
+DLLL {"timestamp": "1743997798.000743", "datetime": "2025-04-07 04:49:58.000743", "elapsedtime": "0.008126", "type": "LOG", "step": "PARAMETER", "data": {"epochs_this_job": 0}}
+DLLL {"timestamp": "1743997798.000777", "datetime": "2025-04-07 04:49:58.000777", "elapsedtime": "0.00816", "type": "LOG", "step": "PARAMETER", "data": {"cudnn_benchmark": true}}
+DLLL {"timestamp": "1743997798.000849", "datetime": "2025-04-07 04:49:58.000849", "elapsedtime": "0.008232", "type": "LOG", "step": "PARAMETER", "data": {"amp": true}}
+DLLL {"timestamp": "1743997798.000885", "datetime": "2025-04-07 04:49:58.000885", "elapsedtime": "0.008268", "type": "LOG", "step": "PARAMETER", "data": {"seed": 1}}
+DLLL {"timestamp": "1743997798.000918", "datetime": "2025-04-07 04:49:58.000918", "elapsedtime": "0.008301", "type": "LOG", "step": "PARAMETER", "data": {"local_rank": 0}}
+DLLL {"timestamp": "1743997798.000952", "datetime": "2025-04-07 04:49:58.000952", "elapsedtime": "0.008335", "type": "LOG", "step": "PARAMETER", "data": {"target": 0.058}}
+DLLL {"timestamp": "1743997798.00101", "datetime": "2025-04-07 04:49:58.001010", "elapsedtime": "0.008393", "type": "LOG", "step": "PARAMETER", "data": {"weights_init_scale": 0.5}}
+DLLL {"timestamp": "1743997798.00105", "datetime": "2025-04-07 04:49:58.001050", "elapsedtime": "0.008433", "type": "LOG", "step": "PARAMETER", "data": {"hidden_hidden_bias_scale": null}}
+DLLL {"timestamp": "1743997798.001082", "datetime": "2025-04-07 04:49:58.001082", "elapsedtime": "0.008465", "type": "LOG", "step": "PARAMETER", "data": {"batch_size": 4}}
+DLLL {"timestamp": "1743997798.001115", "datetime": "2025-04-07 04:49:58.001115", "elapsedtime": "0.008498", "type": "LOG", "step": "PARAMETER", "data": {"val_batch_size": 4}}
+DLLL {"timestamp": "1743997798.001173", "datetime": "2025-04-07 04:49:58.001173", "elapsedtime": "0.008556", "type": "LOG", "step": "PARAMETER", "data": {"lr": 0.004}}
+DLLL {"timestamp": "1743997798.001209", "datetime": "2025-04-07 04:49:58.001209", "elapsedtime": "0.008592", "type": "LOG", "step": "PARAMETER", "data": {"min_lr": 1e-05}}
+DLLL {"timestamp": "1743997798.001246", "datetime": "2025-04-07 04:49:58.001246", "elapsedtime": "0.008629", "type": "LOG", "step": "PARAMETER", "data": {"lr_exp_gamma": 0.935}}
+DLLL {"timestamp": "1743997798.001322", "datetime": "2025-04-07 04:49:58.001322", "elapsedtime": "0.008705", "type": "LOG", "step": "PARAMETER", "data": {"weight_decay": 0.001}}
+DLLL {"timestamp": "1743997798.001365", "datetime": "2025-04-07 04:49:58.001365", "elapsedtime": "0.008748", "type": "LOG", "step": "PARAMETER", "data": {"grad_accumulation_steps": 1}}
+DLLL {"timestamp": "1743997798.001401", "datetime": "2025-04-07 04:49:58.001401", "elapsedtime": "0.008784", "type": "LOG", "step": "PARAMETER", "data": {"log_norm": false}}
+DLLL {"timestamp": "1743997798.001461", "datetime": "2025-04-07 04:49:58.001461", "elapsedtime": "0.008844", "type": "LOG", "step": "PARAMETER", "data": {"clip_norm": 1.0}}
+DLLL {"timestamp": "1743997798.001499", "datetime": "2025-04-07 04:49:58.001499", "elapsedtime": "0.008882", "type": "LOG", "step": "PARAMETER", "data": {"beta1": 0.9}}
+DLLL {"timestamp": "1743997798.001557", "datetime": "2025-04-07 04:49:58.001557", "elapsedtime": "0.00894", "type": "LOG", "step": "PARAMETER", "data": {"beta2": 0.999}}
+DLLL {"timestamp": "1743997798.001599", "datetime": "2025-04-07 04:49:58.001599", "elapsedtime": "0.008982", "type": "LOG", "step": "PARAMETER", "data": {"ema": 0.999}}
+DLLL {"timestamp": "1743997798.001635", "datetime": "2025-04-07 04:49:58.001635", "elapsedtime": "0.009018", "type": "LOG", "step": "PARAMETER", "data": {"dali_device": "gpu"}}
+DLLL {"timestamp": "1743997798.001668", "datetime": "2025-04-07 04:49:58.001668", "elapsedtime": "0.009051", "type": "LOG", "step": "PARAMETER", "data": {"resume": true}}
+DLLL {"timestamp": "1743997798.001703", "datetime": "2025-04-07 04:49:58.001703", "elapsedtime": "0.009086", "type": "LOG", "step": "PARAMETER", "data": {"ckpt": null}}
+DLLL {"timestamp": "1743997798.001758", "datetime": "2025-04-07 04:49:58.001758", "elapsedtime": "0.009141", "type": "LOG", "step": "PARAMETER", "data": {"save_at_the_end": false}}
+DLLL {"timestamp": "1743997798.001798", "datetime": "2025-04-07 04:49:58.001798", "elapsedtime": "0.009181", "type": "LOG", "step": "PARAMETER", "data": {"save_frequency": null}}
+DLLL {"timestamp": "1743997798.00184", "datetime": "2025-04-07 04:49:58.001840", "elapsedtime": "0.009223", "type": "LOG", "step": "PARAMETER", "data": {"keep_milestones": []}}
+DLLL {"timestamp": "1743997798.001968", "datetime": "2025-04-07 04:49:58.001968", "elapsedtime": "0.009351", "type": "LOG", "step": "PARAMETER", "data": {"save_best_from": 200}}
+DLLL {"timestamp": "1743997798.002003", "datetime": "2025-04-07 04:49:58.002003", "elapsedtime": "0.009386", "type": "LOG", "step": "PARAMETER", "data": {"val_frequency": 1}}
+DLLL {"timestamp": "1743997798.002036", "datetime": "2025-04-07 04:49:58.002036", "elapsedtime": "0.009419", "type": "LOG", "step": "PARAMETER", "data": {"log_frequency": 1}}
+DLLL {"timestamp": "1743997798.002068", "datetime": "2025-04-07 04:49:58.002068", "elapsedtime": "0.009451", "type": "LOG", "step": "PARAMETER", "data": {"prediction_frequency": 1000}}
+DLLL {"timestamp": "1743997798.002101", "datetime": "2025-04-07 04:49:58.002101", "elapsedtime": "0.009484", "type": "LOG", "step": "PARAMETER", "data": {"model_config": "configs/baseline_v3-1023sp.yaml"}}
+DLLL {"timestamp": "1743997798.002133", "datetime": "2025-04-07 04:49:58.002133", "elapsedtime": "0.009516", "type": "LOG", "step": "PARAMETER", "data": {"num_buckets": 8}}
+DLLL {"timestamp": "1743997798.002165", "datetime": "2025-04-07 04:49:58.002165", "elapsedtime": "0.009548", "type": "LOG", "step": "PARAMETER", "data": {"train_manifests": ["/projects/I20240005/rnouaj/datasets/LibriSpeech/librispeech-train-clean-100-wav.json", "/projects/I20240005/rnouaj/datasets/LibriSpeech/librispeech-train-clean-360-wav.json", "/projects/I20240005/rnouaj/datasets/LibriSpeech/librispeech-train-other-500-wav.json"]}}
+DLLL {"timestamp": "1743997798.002203", "datetime": "2025-04-07 04:49:58.002203", "elapsedtime": "0.009586", "type": "LOG", "step": "PARAMETER", "data": {"val_manifests": ["/projects/I20240005/rnouaj/datasets/LibriSpeech/librispeech-dev-clean-wav.json"]}}
+DLLL {"timestamp": "1743997798.002238", "datetime": "2025-04-07 04:49:58.002238", "elapsedtime": "0.009621", "type": "LOG", "step": "PARAMETER", "data": {"max_duration": null}}
+DLLL {"timestamp": "1743997798.00227", "datetime": "2025-04-07 04:49:58.002270", "elapsedtime": "0.009653", "type": "LOG", "step": "PARAMETER", "data": {"dataset_dir": "/projects/I20240005/rnouaj/datasets/LibriSpeech"}}
+DLLL {"timestamp": "1743997798.002302", "datetime": "2025-04-07 04:49:58.002302", "elapsedtime": "0.009685", "type": "LOG", "step": "PARAMETER", "data": {"output_dir": "/projects/I20240005/rnouaj/Speech_recognition/rnnt/pytorch/results"}}
+DLLL {"timestamp": "1743997798.002339", "datetime": "2025-04-07 04:49:58.002339", "elapsedtime": "0.009722", "type": "LOG", "step": "PARAMETER", "data": {"log_file": null}}
+DLLL {"timestamp": "1743997798.002375", "datetime": "2025-04-07 04:49:58.002375", "elapsedtime": "0.009758", "type": "LOG", "step": "PARAMETER", "data": {"max_symbol_per_sample": 30}}

@@ -1,0 +1,1 @@
+sudo nvidia-docker run --cpuset-cpus="12-15" --cpus="4" --memory=4g --memory-swap=8g -v $(pwd):/workspace -v /raid/data/object_detection/datasets/:/datasets -t -i --rm --ipc=host mlperf/object_detection

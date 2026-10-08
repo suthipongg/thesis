@@ -1,0 +1,12 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+mlcomns_dlrm/data
+cuda*
+ImageNet21K/.venv/
+ImageNet21K/dataset*
+ImageNet21K/models/
+ImageNet21K/randomenv
+notes/cudnn/
+single_stage_detector/scripts/env/

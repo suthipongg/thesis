@@ -1,0 +1,1 @@
+sudo nvidia-docker run --cpuset-cpus="8-11" --cpus="4" --memory=8g --memory-swap=8g --memory-swappiness=0 -v $(pwd):/workspace -v /raid/data/object_detection/datasets/:/datasets -v /home/stellab/training_git/wklds_colocation:/results -t -i --rm --ipc=host mlperf/object_detection

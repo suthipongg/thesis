@@ -1,0 +1,11 @@
+1. List all dangling images:
+You can list them first to make sure you’re about to delete the right images:
+
+
+docker images -f "dangling=true"
+2. Delete all dangling images:
+Once you've confirmed the list, you can remove all dangling images with the following command:
+
+docker image prune -f
+
+3. Make sure to notice that when you change the number of gpus from 8 to any other number it breaks the shapes ( this should be fixed)

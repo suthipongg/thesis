@@ -1,0 +1,27 @@
+sudo apt-get remove -y --purge '^nvidia-.*'
+sudo apt-get remove -y --purge '^libnvidia-.*'
+sudo apt-get remove -y --purge '^cuda-.*'
+
+#follow the procedure on https://developer.nvidia.com/cuda-downloads?target_os=Linux
+sudo dpkg -i ../cuda-keyring_1.1-1_all.deb
+sudo apt update
+sudo apt install -y cuda
+
+# if after all installations you still get "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver  is installed and running", do the following:
+sudo apt install linux-headers-$(uname -r)
+sudo apt install dkms
+dkms status nvidia to check everything and if not yet installed: sudo dkms install -m nvidia -v #version
+
+#after rebooting you can get this: "docker: Error response from daemon: could not select device driver "" with capabilities: [[gpu]].", then do this:
+sudo apt install --reinstall -y nvidia-docker2
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+
+
+Uninstall what is already in place
+run cuda-installer wherever cuda is installed (normally under /usr/local/cuda-xx.x/bin)
+If modified the driver run nvidia-uninstall
+Install the lastest
+cd /
+sudo sh cuda_12.5.1_555.42.06_linux.run
+Select everything minus the Kernel Objects and the Driver if the driver has not been modified

@@ -1,0 +1,55 @@
+sudo virt-builder ubuntu-20.04 --format raw -o ubuntu2004.img --run-command "usermod -aG root stellab" --edit '/etc/default/keyboard: s/^XKBLAYOUT=.*/XKBLAYOUT="se"/' --edit '/etc/sudoers:s/^%admin.*/%stellab ALL=(ALL) NOPASSWD:ALL/' --edit '/etc/ssh/sshd_config:s/^#ListenAddress 0.0.0.0/ListenAddress 0.0.0.0/' --edit '/etc/ssh/sshd_config:s/^#PubkeyAuthentication.*/PubkeyAuthentication yes/' --delete '/var/lib/man-db/auto-update' --root-password file:passwd --ssh-inject stellab --run-command 'sed -i 's/enp1s0:/ens2:/' /etc/netplan/01-netcfg.yaml' --run-command 'ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf' --run-command 'apt-get update' --run-command 'apt-get install cloud-guest-utils apt-transport-https ca-certificates gnupg curl python3-pip sysstat unzip pigz -y'
+
+sudo qemu-img create -f qcow2 -o preallocation=metadata mlsys_expes.img 30g
+
+sudo virt-resize --expand /dev/sda2 ubuntu2004.img mlsys_expes.img
+
+sudo virt-sysprep -a mlsys_expes.img --operations defaults,-ssh-userdir --hostname stellab --edit '/etc/hosts:s/newvm.*//' --run-command 'dpkg-reconfigure openssh-server' --run-command 'sudo resize2fs /dev/sda5'
+
+sudo virt-install --virt-type=kvm --name expesub20 --ram 409600 --vcpus=60 --os-variant=generic --hvm --network=bridge:virbr0,model=virtio --nographics --disk mlsys_expes.img --import
+
+
+### Connect to the VM using root and further create a normal user
+su
+adduser stellab
+usermod -aG sudo stellab
+vim /etc/sudoers -- add the end of the file, add the newly created user with sudo rights
+ip a  -- look at the eth device name
+vim /etc/netplan/xx-netcfg.yaml -- verify that the eth dev names are the same, if not modify the file accordingly. e.g., if 'ip a' has shown enp1s0 and in the netplan file it is ens2, change ens2 to enp1s0
+netplan try
+netplan apply -- then ip a again to verify that an address has been assigned by the dhcp
+try to ping google.com
+
+############ to enable ssh connection (in addition to virsh console)
+cat ~/.ssh/id_rsa.pub -- in your host
+copy the output to ~/.ssh/authorized_keys in the VM
+
+###### launch with gpu option
+sudo virt-install --virt-type=kvm --name expesub20 --ram 409600 --vcpus=60 --os-variant=generic --hvm --network=bridge:virbr0,model=virtio --host-device 89:00.0 --host-device 8a:00.0 --nographics --disk mlsys_expes.img --import
+
+
+
+
+
+############# you can also install ub18 using virt-builder and upgrade as described in stellab@stellab-XPS-9320
+
+
+#######################change default shell for $user
+mkdir /home/$user 
+chown $user $user:$user -- first create the home_dir for $user if it doesn't exist
+
+usermod --shell /bin/bash $user
+grep $user /etc/passwd
+
+################ enable GPU virt in the grub (/etc/default/grub)
+
+add to the GRUB_CMDLINE_LINUX_DEFAULT: intel_iommu=on iommu=pt vfio-pci.ids=10de:1db5
+
+to fin the ids: lspci -nn | grep NVIDIA
+
+
+############### expand vm image
+1. create another image with the desire size: sudo qemu-img create -f qcow2 ubuntu_gpu_expanded.img 150G
+2. expand the old image to the new one: virt-resize --expand /dev/sda1 ubuntu_gpu.img ubuntu_gpu_expanded.img
+
+make a guestfish -> list-filesystems to find the /dev/sdX partition
