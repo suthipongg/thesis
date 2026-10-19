@@ -1,0 +1,4 @@
+Epoch,Phase,Loss,Mean_Dice,Throughput_Img_Sec,GPU_Busy_Ratio,Total_Starvation_Sec,RAM_GB,VRAM_GB,Avg_Timeout
+1,Val,0.0000,0.0000,7.43,0.3996,2.6764,9.60,0.36,2.0000
+2,Val,0.0000,0.0000,9.24,0.2932,2.7187,9.39,0.36,2.0000
+3,Val,0.0000,0.0000,9.25,0.2922,2.7224,9.07,0.36,2.0000
